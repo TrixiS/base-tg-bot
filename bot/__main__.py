@@ -5,7 +5,11 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
 from . import root_path
 from .bot import bot, dispatcher, phrases
-from .handlers import *
+
+handlers_path = root_path / "bot" / "handlers"
+
+for filepath in handlers_path.glob("*.py"):
+    __import__(f"bot.handlers.{filepath.stem}")
 
 log_filename = str((root_path / "logs.log").resolve())
 
