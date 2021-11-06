@@ -1,3 +1,5 @@
+import argparse
+import os
 import logging
 
 from aiogram import executor
@@ -8,29 +10,71 @@ from .bot import bot, dispatcher, phrases
 
 handlers_path = root_path / "bot" / "handlers"
 
-for filepath in handlers_path.glob("*.py"):
-    __import__(f"bot.handlers.{filepath.stem}")
 
-log_filename = str((root_path / "logs.log").resolve())
-
-logging.basicConfig(
-    filename=log_filename,
-    level=logging.ERROR,
-    format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
-)
-
-logger = logging.getLogger("bot")
-dispatcher.middleware.setup(LoggingMiddleware(logger=logger))
+class ArgsNamespace(argparse.Namespace):
+    handler: str
+    jump: bool
 
 
-async def on_startup(*_):
-    me = await bot.get_me()
-    print(phrases.bot_started.format(bot=me))
+def parse_args() -> ArgsNamespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--handler", help="Name of a handler file to create")
+    parser.add_argument(
+        "--jump", action="store_true", help="Whether to jump to the new created handler"
+    )
+    return parser.parse_args()
 
 
-executor.start_polling(
-    dispatcher,
-    skip_updates=False,
-    loop=bot.loop,
-    on_startup=on_startup,
-)
+def create_handler(name: str):
+    HANDLER_CODE = """from aiogram import types
+
+from ..bot import dispatcher, bot, config, phrases
+"""
+
+    handler_path = handlers_path / f"{name.lower()}.py"
+    handler_path.write_text(HANDLER_CODE, "utf-8")
+    return handler_path
+
+
+def load_handlers():
+    for filepath in handlers_path.glob("*.py"):
+        __import__(f"bot.handlers.{filepath.stem}")
+
+
+def main():
+    args = parse_args()
+
+    if args.handler:
+        handler_path = create_handler(args.handler)
+
+        if args.jump:
+            os.system(f"code {handler_path.absolute()}")
+
+        return
+
+    log_filename = str((root_path / "logs.log").resolve())
+
+    logging.basicConfig(
+        filename=log_filename,
+        level=logging.ERROR,
+        format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
+    )
+
+    logger = logging.getLogger("bot")
+    dispatcher.middleware.setup(LoggingMiddleware(logger=logger))
+
+    load_handlers()
+
+    async def on_startup(*_):
+        me = await bot.get_me()
+        print(phrases.bot_started.format(bot=me))
+
+    executor.start_polling(
+        dispatcher,
+        skip_updates=False,
+        loop=bot.loop,
+        on_startup=on_startup,
+    )
+
+
+main()
