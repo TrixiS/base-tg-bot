@@ -1,37 +1,36 @@
-import json
-
 from pathlib import Path
+
 from pydantic import BaseModel
-from bot import models, root_path
 
-CONFIG_FILENAMES = ("config.json", "config_dev.json")
-
-
-def _update_model_json_file(model_cls: BaseModel, filepath: Path):
-    model_object = model_cls.parse_file(filepath)
-
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(model_object.dict(), f, indent=2, ensure_ascii=False)
+from bot import root_path
+from bot.config import BotConfig
+from bot.phrases import BotPhrases
 
 
-def update_config_json_file(config_path: Path):
-    _update_model_json_file(models.ConfigModel, config_path)
+def update_json_file_from_model(path: Path, model_cls: BaseModel):
+    if not path.exists():
+        return
+
+    model_object = model_cls.parse_file(path)
+
+    with open(path, "w", encoding="utf-8") as f:
+        json_string = model_object.json(indent=2, ensure_ascii=False)
+        f.write(json_string)
 
 
-def update_phrases_json_file(phrases_path: Path):
-    _update_model_json_file(models.PhrasesModel, phrases_path)
+def update_config_files():
+    for config_filename in BotConfig.__config_filenames__:
+        update_json_file_from_model(root_path / config_filename, BotConfig)
+
+
+def update_phrase_files():
+    for phrases_path in (root_path / "phrases").glob("*.json"):
+        update_json_file_from_model(phrases_path, BotPhrases)
 
 
 def main():
-    for config_filename in CONFIG_FILENAMES:
-        path = root_path / config_filename
-
-        if not path.exists():
-            continue
-
-        update_config_json_file(path)
-
-    update_phrases_json_file(root_path / "phrases.json")
+    update_config_files()
+    update_phrase_files()
 
 
 if __name__ == "__main__":
