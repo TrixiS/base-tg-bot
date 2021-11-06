@@ -32,6 +32,7 @@ def start_bot():
 
 def main():
     install_dependencies()
+    __import__("update").main()
     start_bot()
 
     if SYSTEM == "Windows":
