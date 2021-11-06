@@ -1,14 +1,14 @@
 import asyncio
 
-from aiogram import Dispatcher, Bot
+from aiogram import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+from .utils.bot import Bot
 from .config import BotConfig
 from .phrases import BotPhrases
 
 config = BotConfig.load_first()
 all_phrases = BotPhrases.load_all()
-phrases = all_phrases[0]
 
-bot = Bot(loop=asyncio.get_event_loop(), token=config.bot_token)
+bot = Bot(config, all_phrases, loop=asyncio.get_event_loop())
 dispatcher = Dispatcher(bot, loop=bot.loop, storage=MemoryStorage())

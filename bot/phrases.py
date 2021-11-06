@@ -9,6 +9,7 @@ class BotPhrases(BaseModel):
     __lang_code__: str = None
 
     bot_started: str = Field("Бот {bot.full_name} запущен")
+    start_message: str = Field("Remove or update the start message")
 
     @classmethod
     def load_all(cls) -> List["BotPhrases"]:

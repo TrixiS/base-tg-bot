@@ -6,7 +6,7 @@ from aiogram import executor
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
 from . import root_path
-from .bot import bot, dispatcher, phrases
+from .bot import bot, dispatcher
 
 handlers_path = root_path / "bot" / "handlers"
 
@@ -28,7 +28,7 @@ def parse_args() -> ArgsNamespace:
 def create_handler(name: str):
     HANDLER_CODE = """from aiogram import types
 
-from ..bot import dispatcher, bot, config, phrases
+from ..bot import dispatcher, bot
 """
 
     handler_path = handlers_path / f"{name.lower()}.py"
@@ -67,7 +67,7 @@ def main():
 
     async def on_startup(*_):
         me = await bot.get_me()
-        print(phrases.bot_started.format(bot=me))
+        print(bot.phrases.bot_started.format(bot=me))
 
     executor.start_polling(
         dispatcher,
