@@ -1,1 +1,0 @@
-python3 -m "pip" install -U wheel -r requirements.txt --quiet && python3 update.py && python3 -m bot
