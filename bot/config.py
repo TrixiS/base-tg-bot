@@ -7,6 +7,7 @@ class BotConfig(BaseModel):
     __config_filenames__ = ("config_dev.json", "config.json")
 
     bot_token: str = Field("API токен из @BotFather")
+    admin_username: str = Field("Username администратора бота")
 
     @classmethod
     def load_first(cls):
