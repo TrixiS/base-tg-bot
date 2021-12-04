@@ -1,6 +1,6 @@
 from aiogram import types
 
-from ..bot import dispatcher, bot
+from ..bot import bot, dispatcher
 
 
 @dispatcher.message_handler(commands=["start"])

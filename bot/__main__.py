@@ -1,6 +1,6 @@
 import argparse
-import os
 import logging
+import os
 
 from aiogram import executor
 from aiogram.contrib.middlewares.logging import LoggingMiddleware

@@ -3,9 +3,9 @@ import asyncio
 from aiogram import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-from .utils.bot import Bot
 from .config import BotConfig
 from .phrases import BotPhrases
+from .utils.bot import Bot
 
 config = BotConfig.load_first()
 all_phrases = BotPhrases.load_all()

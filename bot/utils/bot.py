@@ -1,9 +1,7 @@
 import asyncio
-
 from typing import List
 
 import aiogram
-
 from aiogram.bot import Bot as BaseBot
 
 from ..config import BotConfig
