@@ -1,5 +1,6 @@
 # Custom
 config_dev.json
+_*dev*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

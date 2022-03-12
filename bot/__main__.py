@@ -1,6 +1,4 @@
-import argparse
 import logging
-import os
 
 from aiogram import executor
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
@@ -11,47 +9,12 @@ from .bot import bot, dispatcher
 handlers_path = root_path / "bot" / "handlers"
 
 
-class ArgsNamespace(argparse.Namespace):
-    handler: str
-    jump: bool
-
-
-def parse_args() -> ArgsNamespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--handler", help="Name of a handler file to create")
-    parser.add_argument(
-        "--jump", action="store_true", help="Whether to jump to the new created handler"
-    )
-    return parser.parse_args()
-
-
-def create_handler(name: str):
-    HANDLER_CODE = """from aiogram import types
-
-from ..bot import dispatcher, bot
-"""
-
-    handler_path = handlers_path / f"{name.lower()}.py"
-    handler_path.write_text(HANDLER_CODE, "utf-8")
-    return handler_path
-
-
 def load_handlers():
     for filepath in handlers_path.glob("*.py"):
         __import__(f"bot.handlers.{filepath.stem}")
 
 
 def main():
-    args = parse_args()
-
-    if args.handler:
-        handler_path = create_handler(args.handler)
-
-        if args.jump:
-            os.system(f"code {handler_path.absolute()}")
-
-        return
-
     log_filename = str((root_path / "logs.log").resolve())
 
     logging.basicConfig(
