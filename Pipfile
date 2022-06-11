@@ -4,7 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aiofiles = "==0.8.0"
+aiogram = {file = "https://github.com/aiogram/aiogram/archive/refs/heads/dev-3.x.zip"}
+typer = "*"
 
 [dev-packages]
 
