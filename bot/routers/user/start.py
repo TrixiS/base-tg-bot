@@ -1,6 +1,6 @@
 from aiogram import types
-from bot.bot import bot
 
+from ...bot import bot
 from . import router
 
 
