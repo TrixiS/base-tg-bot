@@ -1,6 +1,6 @@
 # Custom
 _*dev*
-*.sqlite3
+*.sqlite3*
 *.lock
 
 # Byte-compiled / optimized / DLL files

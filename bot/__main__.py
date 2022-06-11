@@ -1,7 +1,19 @@
 import logging
 
-from . import root_path, routers, routers_path
+from . import middleware, root_path, routers, routers_path, services
 from .bot import bot, dispatcher
+
+
+@dispatcher.startup()
+async def on_startup():
+    await services.setup()
+    me = await bot.get_me()
+    print(bot.phrases.bot_started.format(me=me))
+
+
+@dispatcher.shutdown()
+async def on_shutdown():
+    await services.dispose()
 
 
 def import_routers():
@@ -28,9 +40,7 @@ def main():
         format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
     )
 
-    # TODO: handler middlewares
-    # TODO: test sql model as middleware
-
+    middleware.setup(dispatcher)
     import_routers()
     dispatcher.include_router(routers.root_handlers_router)
 
