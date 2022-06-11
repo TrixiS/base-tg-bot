@@ -6,4 +6,4 @@ from .models.phrases.bot_phrases import BotPhrases
 from .utils.bot import Bot
 
 bot = Bot(BotConfig.load_first(), BotPhrases.load_first(), parse_mode="HTML")
-dispatcher = Dispatcher(MemoryStorage())  # type: ignore
+dispatcher = Dispatcher(MemoryStorage())
