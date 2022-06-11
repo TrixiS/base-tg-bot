@@ -1,4 +1,4 @@
-{
+﻿{
   "bot_token": "API токен из @BotFather",
-  "admin_username": "Username администратора бота"
+  "admin_user_id": "User ID администратора бота (можно получить в https://t.me/userinfobot)"
 }

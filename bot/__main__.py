@@ -21,26 +21,17 @@ def import_routers():
             __import__(f"bot.routers.{router_dir_path.stem}.{router_file_path.stem}")
 
 
-# TODO:
-# 1. Sub dir for parsing handlers
-# 2. Handlers categories as directories e g admin/ user/ etc
-# 3. HandlerCategoryProtector class (add filters through router.bind_filter) (?)
 def main():
     log_filename = str((root_path / "logs.log").resolve())
 
     logging.basicConfig(
         filename=log_filename,
         level=logging.ERROR,
-        # format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
+        format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
     )
 
     # TODO: handler middlewares
     # TODO: test sql model as middleware
-    # TODO: models/
-    # TODO: BaseConfigModel update and refresh methods
-    # TODO: use admin user id in config
-    # dispatcher.middleware.setup(LoggingMiddleware(logger=logger))
-    # dispatcher.update.middleware.setup(LoggingMiddleware())
 
     import_routers()
     dispatcher.include_router(routers.root_handlers_router)

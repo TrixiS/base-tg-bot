@@ -1,0 +1,12 @@
+from pydantic import Field
+
+from ..config_model import ConfigModel
+
+
+class BotConfig(ConfigModel):
+    __filenames__ = ("_config_dev.json", "config.json")
+
+    bot_token: str = Field("API токен из @BotFather")
+    admin_user_id: str = Field(
+        "User ID администратора бота (можно получить в https://t.me/userinfobot)"
+    )

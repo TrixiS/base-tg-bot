@@ -1,12 +1,9 @@
 from aiogram import Dispatcher
 from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 
-from .config import BotConfig
-from .phrases import BotPhrases
+from .models.config.bot_config import BotConfig
+from .models.phrases.bot_phrases import BotPhrases
 from .utils.bot import Bot
 
-config = BotConfig.load_first()
-all_phrases = BotPhrases.load_all()
-
-bot = Bot(config, all_phrases, parse_mode="HTML")  # type: ignore
+bot = Bot(BotConfig.load_first(), BotPhrases.load_first(), parse_mode="HTML")
 dispatcher = Dispatcher(MemoryStorage())  # type: ignore
