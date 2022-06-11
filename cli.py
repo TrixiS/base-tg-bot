@@ -4,7 +4,7 @@ from pathlib import Path
 
 import typer
 
-from bot import ENCODING, root_path
+from bot import ENCODING, routers_path
 from bot.models.config.bot_config import BotConfig
 from bot.models.phrases.bot_phrases import BotPhrases
 
@@ -41,15 +41,52 @@ def refresh():
     os.system(f"{sys.executable} -m pip freeze > requirements.txt")
 
 
-# TODO: router command
-# TODO: update handler command to the new structure
 @app.command()
-def handler(name: str, jump: bool = False):
-    handlers_dirpath = root_path / "bot/handlers"
-    hander_path = create_handler(handlers_dirpath, name)
+def router(name: str):
+    ROUTER_INIT_CODE = """from aiogram.dispatcher.router import Router
 
-    if jump:
-        os.system(f"code {hander_path.absolute()}")
+from .. import root_handlers_router
+
+router = Router()
+root_handlers_router.include_router(router)
+"""
+
+    router_dirpath = routers_path / name
+    init_filepath = router_dirpath / "__init__.py"
+    router_dirpath.mkdir(exist_ok=True)
+    init_filepath.write_text(ROUTER_INIT_CODE, encoding=ENCODING)
+    typer.echo(f"Created router in {router_dirpath}")
+
+
+@app.command()
+def handler(router: str, name: str, jump: bool = False):
+    HANDLER_CODE = """from aiogram import types
+
+from ...bot import bot
+from . import router
+"""
+
+    router_dirpath = routers_path / router
+
+    if not router_dirpath.exists():
+        return typer.echo(f"Router {router} does not exist")
+
+    handler_filepath = router_dirpath / f"{name}.py"
+
+    if handler_filepath.exists():
+        if jump:
+            jump_to_file(handler_filepath)
+
+        return typer.echo(f"Handler {handler_filepath} is already created")
+
+    handler_filepath.write_text(HANDLER_CODE, encoding=ENCODING)
+
+    typer.echo(f"Handler {handler_filepath} has been created")
+    jump_to_file(handler_filepath)
+
+
+def jump_to_file(path: Path):
+    os.system(f"code {path.absolute()}")
 
 
 def create_json_file(filepath: Path) -> bool:

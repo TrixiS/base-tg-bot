@@ -1,12 +1,10 @@
 import logging
 
-from . import root_path, routers
+from . import root_path, routers, routers_path
 from .bot import bot, dispatcher
 
 
 def import_routers():
-    routers_path = root_path / "bot/routers"
-
     for router_dir_path in routers_path.glob("*"):
         if not router_dir_path.is_dir() or (
             router_dir_path.stem.startswith("__")
