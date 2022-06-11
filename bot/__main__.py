@@ -1,43 +1,52 @@
 import logging
 
-from aiogram import executor
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
-
-from . import root_path
+from . import root_path, routers
 from .bot import bot, dispatcher
 
-handlers_path = root_path / "bot" / "handlers"
+
+def import_routers():
+    routers_path = root_path / "bot/routers"
+
+    for router_dir_path in routers_path.glob("*"):
+        if not router_dir_path.is_dir() or (
+            router_dir_path.stem.startswith("__")
+            and router_dir_path.stem.endswith("__")
+        ):
+            continue
+
+        for router_file_path in router_dir_path.glob("*.*"):
+            if not router_file_path.is_file():
+                continue
+
+            __import__(f"bot.routers.{router_dir_path.stem}.{router_file_path.stem}")
 
 
-def load_handlers():
-    for filepath in handlers_path.glob("*.py"):
-        __import__(f"bot.handlers.{filepath.stem}")
-
-
+# TODO:
+# 1. Sub dir for parsing handlers
+# 2. Handlers categories as directories e g admin/ user/ etc
+# 3. HandlerCategoryProtector class (add filters through router.bind_filter) (?)
 def main():
     log_filename = str((root_path / "logs.log").resolve())
 
     logging.basicConfig(
         filename=log_filename,
         level=logging.ERROR,
-        format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
+        # format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
     )
 
-    logger = logging.getLogger("bot")
-    dispatcher.middleware.setup(LoggingMiddleware(logger=logger))
+    # TODO: handler middlewares
+    # TODO: test sql model as middleware
+    # TODO: models/
+    # TODO: BaseConfigModel update and refresh methods
+    # TODO: use admin user id in config
+    # dispatcher.middleware.setup(LoggingMiddleware(logger=logger))
+    # dispatcher.update.middleware.setup(LoggingMiddleware())
 
-    load_handlers()
+    import_routers()
+    dispatcher.include_router(routers.root_handlers_router)
 
-    async def on_startup(*_):
-        me = await bot.get_me()
-        print(bot.phrases.bot_started.format(bot=me))
-
-    executor.start_polling(
-        dispatcher,
-        skip_updates=False,
-        loop=bot.loop,
-        on_startup=on_startup,
-    )
+    used_update_types = dispatcher.resolve_used_update_types()
+    dispatcher.run_polling(bot, allowed_updates=used_update_types)
 
 
 main()

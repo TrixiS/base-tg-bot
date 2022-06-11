@@ -1,3 +1,3 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from ..bot import bot
+from .bot import bot

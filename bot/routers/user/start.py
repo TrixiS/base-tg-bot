@@ -1,8 +1,9 @@
 from aiogram import types
+from bot.bot import bot
 
-from ..bot import bot, dispatcher
+from . import router
 
 
-@dispatcher.message_handler(commands=["start"])
+@router.message(commands=["start"])
 async def start_handler(message: types.Message):
     await message.answer(bot.phrases.start_message)

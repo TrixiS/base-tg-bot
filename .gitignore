@@ -1,6 +1,7 @@
 # Custom
-config_dev.json
 _*dev*
+*.sqlite3
+*.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
