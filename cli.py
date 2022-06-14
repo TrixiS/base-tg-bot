@@ -4,9 +4,10 @@ from pathlib import Path
 
 import typer
 
-from bot import ENCODING, routers_path
+from bot import ENCODING
 from bot.models.config.bot_config import BotConfig
 from bot.models.phrases.bot_phrases import BotPhrases
+from bot.utils.paths import routers_path
 
 app = typer.Typer()
 

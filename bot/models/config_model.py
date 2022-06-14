@@ -3,7 +3,8 @@ from typing import Tuple
 
 from pydantic import BaseModel
 
-from .. import ENCODING, root_path
+from .. import ENCODING
+from ..utils.paths import root_path
 
 
 class ConfigModel(BaseModel):
