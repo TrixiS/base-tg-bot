@@ -1,7 +1,8 @@
 import logging
 
-from . import middleware, root_path, routers, routers_path, services
+from . import middleware, routers, services
 from .bot import bot, dispatcher
+from .utils.paths import root_path, routers_path
 
 
 @dispatcher.startup()
@@ -24,11 +25,15 @@ def import_routers():
         ):
             continue
 
-        for router_file_path in router_dir_path.glob("*.*"):
-            if not router_file_path.is_file():
+        sorted_handler_file_paths = sorted(
+            router_dir_path.glob("*.*"), key=lambda p: p.stem
+        )
+
+        for handler_file_path in sorted_handler_file_paths:
+            if not handler_file_path.is_file():
                 continue
 
-            __import__(f"bot.routers.{router_dir_path.stem}.{router_file_path.stem}")
+            __import__(f"bot.routers.{router_dir_path.stem}.{handler_file_path.stem}")
 
 
 def main():
