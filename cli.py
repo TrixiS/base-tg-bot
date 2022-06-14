@@ -60,7 +60,7 @@ root_handlers_router.include_router(router)
 
 @app.command()
 def handler(router: str, name: str, jump: bool = False):
-    HANDLER_CODE = """from aiogram import types
+    HANDLER_CODE = """from aiogram import F, types
 
 from ...bot import bot
 from . import router
@@ -74,15 +74,13 @@ from . import router
     handler_filepath = router_dirpath / f"{name}.py"
 
     if handler_filepath.exists():
-        if jump:
-            jump_to_file(handler_filepath)
+        typer.echo(f"Handler {handler_filepath} is already created")
+    else:
+        handler_filepath.write_text(HANDLER_CODE, encoding=ENCODING)
+        typer.echo(f"Handler {handler_filepath} has been created")
 
-        return typer.echo(f"Handler {handler_filepath} is already created")
-
-    handler_filepath.write_text(HANDLER_CODE, encoding=ENCODING)
-
-    typer.echo(f"Handler {handler_filepath} has been created")
-    jump_to_file(handler_filepath)
+    if jump:
+        jump_to_file(handler_filepath)
 
 
 def jump_to_file(path: Path):
