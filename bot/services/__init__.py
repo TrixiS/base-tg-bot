@@ -1,9 +1,11 @@
-from . import database
+from .database import DatabaseService
+
+database_service = DatabaseService()
 
 
 async def setup():
-    await database.setup()
+    await database_service.setup()
 
 
 async def dispose():
-    await database.dispose()
+    await database_service.dispose()

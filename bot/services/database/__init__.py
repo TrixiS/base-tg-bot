@@ -1,17 +1,17 @@
 from tortoise import Tortoise
 
 from ...bot import bot
-from . import models
+from ..base import BaseService
 
 
-async def setup():
-    await Tortoise.init(
-        modules={"models": ["bot.services.database.models"]},
-        db_url=bot.config.database_uri,
-    )
+class DatabaseService(BaseService):
+    async def setup(self):
+        await Tortoise.init(
+            modules={"models": ["bot.services.database.models"]},
+            db_url=bot.config.database_uri,
+        )
 
-    await Tortoise.generate_schemas()
+        await Tortoise.generate_schemas()
 
-
-async def dispose():
-    await Tortoise.close_connections()
+    async def dispose(self):
+        await Tortoise.close_connections()
