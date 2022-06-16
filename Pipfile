@@ -9,6 +9,7 @@ typer = "*"
 aiosqlite = "*"
 tortoise-orm = "*"
 pydantic = "*"
+aioschedule = "*"
 
 [dev-packages]
 

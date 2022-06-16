@@ -1,6 +1,7 @@
 aiofiles==0.8.0
 aiogram @ https://github.com/aiogram/aiogram/archive/refs/heads/dev-3.x.zip
 aiohttp==3.8.1
+aioschedule==0.5.2
 aiosignal==1.2.0
 aiosqlite==0.17.0
 async-timeout==4.0.2
