@@ -15,14 +15,14 @@ class ServiceManager:
     def unregister(self, service: Service):
         self._services.remove(service)
 
-    async def setup_services(self):
+    async def setup_all(self):
         if not self._services:
             return
 
         service_setup_coros = (service.setup() for service in self._services)
         await asyncio.gather(*(service_setup_coros))
 
-    async def dispose_services(self):
+    async def dispose_all(self):
         if not self._services:
             return
 
