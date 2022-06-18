@@ -1,11 +1,11 @@
 from aiogram.dispatcher.filters.base import BaseFilter
 
 from ..bot import bot
-from .argument_protocol import BoundFilterArgumentProtocol
+from ..protocols.telegram_user_event import TelegramUserEvent
 
 
 class AdminFilter(BaseFilter):
-    async def __call__(self, telegram_object: BoundFilterArgumentProtocol):
+    async def __call__(self, telegram_object: TelegramUserEvent):
         if telegram_object.from_user is None:
             return False
 
