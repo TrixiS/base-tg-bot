@@ -1,10 +1,9 @@
 from tortoise import Tortoise
 
 from ...bot import bot
-from ..base import BaseService
 
 
-class DatabaseService(BaseService):
+class DatabaseService:
     async def setup(self):
         await Tortoise.init(
             modules={"models": ["bot.services.database.models"]},

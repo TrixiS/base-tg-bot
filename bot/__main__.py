@@ -7,14 +7,14 @@ from .utils.paths import root_path, routers_path
 
 @dispatcher.startup()
 async def on_startup():
-    await services.setup()
+    await services.setup(dispatcher)
     me = await bot.get_me()
     print(bot.phrases.bot_started.format(me=me))
 
 
 @dispatcher.shutdown()
 async def on_shutdown():
-    await services.dispose()
+    await services.dispose(dispatcher)
 
 
 def import_routers():
