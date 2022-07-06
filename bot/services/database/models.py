@@ -2,5 +2,7 @@ from tortoise import fields
 from tortoise.models import Model
 
 
-class Test(Model):
-    pass
+class BotUser(Model):
+    id = fields.IntField(pk=True, unique=True)  # telegram user id
+    username = fields.TextField(null=True)
+    full_name = fields.TextField()
