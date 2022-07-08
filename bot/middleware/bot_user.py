@@ -15,7 +15,6 @@ class BotUserMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         from_user: types.User = event.from_user  # type: ignore
-        bot_user = await BotUser.get_or_none(id=from_user.id)
 
         bot_user, _ = await BotUser.get_or_create(
             dict(username=from_user.username, full_name=from_user.full_name),
