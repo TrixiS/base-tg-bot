@@ -8,9 +8,6 @@ from ..services.database.models import BotUser
 
 
 class BotUserMiddleware(BaseMiddleware):
-    def __init__(self) -> None:
-        self.counter = 0
-
     async def __call__(
         self,
         handler: Callable[[TelegramUserEvent, Dict[str, Any]], Awaitable[Any]],
@@ -19,5 +16,11 @@ class BotUserMiddleware(BaseMiddleware):
     ) -> Any:
         from_user: types.User = event.from_user  # type: ignore
         bot_user = await BotUser.get_or_none(id=from_user.id)
+
+        bot_user, _ = await BotUser.get_or_create(
+            dict(username=from_user.username, full_name=from_user.full_name),
+            id=from_user.id,
+        )
+
         data["bot_user"] = bot_user
         return await handler(event, data)
