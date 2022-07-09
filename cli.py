@@ -64,7 +64,7 @@ def handler(router: str, name: str, jump: bool = False):
     HANDLER_CODE = """from aiogram import F, types
 from aiogram.dispatcher.fsm.context import FSMContext
 
-from ... import markups, state
+from ... import markups
 from ...bot import bot
 from ...services.database.models import BotUser
 from . import router
