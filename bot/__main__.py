@@ -18,22 +18,23 @@ async def on_shutdown():
 
 
 def import_routers():
-    for router_dir_path in routers_path.glob("*"):
-        if not router_dir_path.is_dir() or (
-            router_dir_path.stem.startswith("__")
-            and router_dir_path.stem.endswith("__")
-        ):
+    for router_path in routers_path.glob("*"):
+        if router_path.stem.startswith("__") and router_path.stem.endswith("__"):
+            continue
+
+        if router_path.is_file():
+            __import__(f"bot.routers.{router_path.stem}")
             continue
 
         sorted_handler_file_paths = sorted(
-            router_dir_path.glob("*.*"), key=lambda p: p.stem
+            router_path.glob("*.*"), key=lambda p: p.stem
         )
 
         for handler_file_path in sorted_handler_file_paths:
             if not handler_file_path.is_file():
                 continue
 
-            __import__(f"bot.routers.{router_dir_path.stem}.{handler_file_path.stem}")
+            __import__(f"bot.routers.{router_path.stem}.{handler_file_path.stem}")
 
 
 def main():

@@ -43,8 +43,21 @@ def refresh():
 
 
 @app.command()
-def router(name: str):
-    ROUTER_INIT_CODE = """from aiogram.dispatcher.router import Router
+def router(name: str, file: bool = False, jump: bool = False):
+    FILE_ROUTER_CODE = """from aiogram import F, types
+from aiogram.dispatcher.fsm.context import FSMContext
+
+from .. import markups
+from ..bot import bot
+from ..services.database.models import BotUser
+from ..utils.router import Router
+from . import root_handlers_router
+
+router = Router()
+root_handlers_router.include_router(router)
+"""
+
+    DIR_ROUTER_CODE = """from aiogram.dispatcher.router import Router
 
 from .. import root_handlers_router
 
@@ -52,10 +65,20 @@ router = Router()
 root_handlers_router.include_router(router)
 """
 
+    if file:
+        router_filepath = routers_path / f"{name}.py"
+        router_filepath.write_text(FILE_ROUTER_CODE, encoding=ENCODING)
+        typer.echo(f"Created router in {router_filepath}")
+
+        if jump:
+            jump_to_file(router_filepath)
+
+        return
+
     router_dirpath = routers_path / name
     init_filepath = router_dirpath / "__init__.py"
     router_dirpath.mkdir(exist_ok=True)
-    init_filepath.write_text(ROUTER_INIT_CODE, encoding=ENCODING)
+    init_filepath.write_text(DIR_ROUTER_CODE, encoding=ENCODING)
     typer.echo(f"Created router in {router_dirpath}")
 
 
