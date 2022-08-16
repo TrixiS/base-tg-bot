@@ -1,7 +1,7 @@
 from typing import Type
 
-from aiogram.dispatcher.filters import BaseFilter
 from aiogram.dispatcher.router import Router as AiogramRouter
+from aiogram.filters import BaseFilter
 
 
 class Router(AiogramRouter):

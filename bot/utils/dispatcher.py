@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
 from aiogram import Dispatcher as AiogramDispatcher
-from aiogram.dispatcher.fsm.storage.base import BaseEventIsolation, BaseStorage
-from aiogram.dispatcher.fsm.strategy import FSMStrategy
+from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage
+from aiogram.fsm.strategy import FSMStrategy
 
 from .service_manager import ServiceManager
 

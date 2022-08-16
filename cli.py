@@ -45,7 +45,7 @@ def refresh():
 @app.command()
 def router(name: str, file: bool = False, jump: bool = False):
     FILE_ROUTER_CODE = """from aiogram import F, types
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.fsm.context import FSMContext
 
 from .. import markups
 from ..bot import bot
@@ -85,7 +85,7 @@ root_handlers_router.include_router(router)
 @app.command()
 def handler(router: str, name: str, jump: bool = False):
     HANDLER_CODE = """from aiogram import F, types
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.fsm.context import FSMContext
 
 from ... import markups
 from ...bot import bot

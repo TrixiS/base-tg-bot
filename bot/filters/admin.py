@@ -1,4 +1,4 @@
-from aiogram.dispatcher.filters.base import BaseFilter
+from aiogram.filters.base import BaseFilter
 
 from ..bot import bot
 from ..protocols.telegram_user_event import TelegramUserEvent

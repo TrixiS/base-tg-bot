@@ -1,4 +1,4 @@
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from .models.config.bot_config import BotConfig
 from .models.phrases.bot_phrases import BotPhrases

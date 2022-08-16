@@ -1,7 +1,7 @@
 from aiogram import F, types
-from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.fsm.context import FSMContext
 
-from ... import markups, state
+from ... import markups
 from ...bot import bot
 from ...services.database.models import BotUser
 from . import router
