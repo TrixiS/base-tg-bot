@@ -10,6 +10,7 @@ aiosqlite = "*"
 tortoise-orm = "*"
 pydantic = "*"
 aioschedule = "*"
+aerich = "*"
 
 [dev-packages]
 
