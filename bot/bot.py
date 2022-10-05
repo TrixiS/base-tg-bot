@@ -6,4 +6,4 @@ from .utils.bot import Bot
 from .utils.dispatcher import Dispatcher
 
 bot = Bot(BotConfig.load_first(), BotPhrases.load_first(), parse_mode="HTML")
-dispatcher = Dispatcher(MemoryStorage())
+dispatcher = Dispatcher(storage=MemoryStorage())

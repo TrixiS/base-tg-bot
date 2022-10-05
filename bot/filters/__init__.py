@@ -1,7 +1,4 @@
-from curses.ascii import isdigit
-
 from aiogram import types
-from tortoise.expressions import Q
 
 from ..services.database.models import BotUser
 
