@@ -1,6 +1,7 @@
+import datetime
 from abc import ABC, ABCMeta
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, Optional, Type, TypeVar
 
 from aiogram import F, types
 from aiogram.dispatcher.router import Router
@@ -12,6 +13,9 @@ from aiogram.utils.magic_filter import MagicFilter
 #       class SomeForm(Form, enter_message_pattern="Enter {field_name}")
 
 # TODO: support for enter message callback
+
+# TODO: try again message text
+# TODO: .from_tortoise_model
 
 TForm = TypeVar("TForm", bound="Form")
 
@@ -54,6 +58,16 @@ class Form(ABC, metaclass=ABCMeta):
         default_filters = {
             str: F.text,
             int: F.text.func(int),
+            float: F.text.func(float),
+            datetime.date: F.text.func(
+                lambda text: datetime.datetime.strptime(text, r"%d.%m.%Y").date()
+            ),
+            datetime.datetime: F.text.func(
+                lambda text: datetime.datetime.strptime(text, r"%d.%m.%Y %H:%M")
+            ),
+            datetime.time: F.text.func(
+                lambda text: datetime.datetime.strptime(text, r"%H:%M").time()
+            ),
         }
 
         field_filter = default_filters.get(field_type)
@@ -90,7 +104,7 @@ class Form(ABC, metaclass=ABCMeta):
                 await state.clear()
                 form_object = cls()
                 form_object.__dict__.update(state_data["values"])
-                return await form_object.submit(state_ctx.key.chat_id, **data)
+                return await form_object.submit(**data)
 
             await message.answer(next_field.info.enter_message_text)
 
@@ -120,5 +134,5 @@ class Form(ABC, metaclass=ABCMeta):
             state_ctx.key.chat_id, first_field.info.enter_message_text
         )
 
-    async def submit(self, chat_id: int, **data):
+    async def submit(self, **data):
         ...
