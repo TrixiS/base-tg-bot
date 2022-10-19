@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABC, ABCMeta
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Type, TypeVar
 
@@ -10,8 +10,6 @@ from aiogram.utils.magic_filter import MagicFilter
 
 # TODO: support for pattern enter message like
 #       class SomeForm(Form, enter_message_pattern="Enter {field_name}")
-
-# TODO: support for custom filters
 
 # TODO: support for enter message callback
 
@@ -39,12 +37,7 @@ class _FormFieldData:
     info: FormFieldInfo
 
 
-class _ObjectFromDict:
-    def __init__(self, values: Dict[Any, Any]):
-        self.__dict__.update(values)
-
-
-class Form(metaclass=ABCMeta):
+class Form(ABC, metaclass=ABCMeta):
     @classmethod
     def __current_field_generator(cls):
         for field_name, field_type in cls.__annotations__.items():
@@ -95,8 +88,9 @@ class Form(metaclass=ABCMeta):
             except StopIteration:
                 state_data = await state.get_data()
                 await state.clear()
-                data_object = _ObjectFromDict(state_data["values"])
-                return await cls.done(state_ctx.key.chat_id, data_object, **data)  # type: ignore
+                form_object = cls()
+                form_object.__dict__.update(state_data["values"])
+                return await form_object.submit(state_ctx.key.chat_id, **data)
 
             await message.answer(next_field.info.enter_message_text)
 
@@ -109,6 +103,10 @@ class Form(metaclass=ABCMeta):
             )
 
             filter_result = field_filter.resolve(message)
+
+            if filter_result is None:
+                return False
+
             return {"value": filter_result}
 
         if not getattr(cls, "__registered", False):
@@ -122,6 +120,5 @@ class Form(metaclass=ABCMeta):
             state_ctx.key.chat_id, first_field.info.enter_message_text
         )
 
-    @classmethod
-    async def done(cls: Type[TForm], chat_id: int, form_data: TForm, **data):
+    async def submit(self, chat_id: int, **data):
         ...
