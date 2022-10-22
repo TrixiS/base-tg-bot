@@ -15,6 +15,8 @@ from aiogram.utils.magic_filter import MagicFilter
 
 # TODO: support for enter message callback
 
+# TODO: support for any kind of filters (e. g. async, Filter subclass, etc...)
+
 # TODO: try again message text
 # TODO: .from_tortoise_model
 
@@ -28,17 +30,27 @@ class FormState(StatesGroup):
 @dataclass(frozen=True)
 class FormFieldInfo:
     enter_message_text: str
+    error_message_text: Optional[str]
     filter: Optional[MagicFilter]
 
 
-def FormField(*, enter_message_text: str, filter: Optional[MagicFilter] = None) -> Any:
-    return FormFieldInfo(enter_message_text=enter_message_text, filter=filter)
+def FormField(
+    *,
+    enter_message_text: str,
+    filter: Optional[MagicFilter] = None,
+    error_message_text: Optional[str] = None,
+) -> Any:
+    return FormFieldInfo(
+        enter_message_text=enter_message_text,
+        error_message_text=error_message_text,
+        filter=filter,
+    )
 
 
 @dataclass
 class _FormFieldData:
     name: str
-    type: Any
+    type: Type
     info: FormFieldInfo
 
 
@@ -126,49 +138,56 @@ class Form(ABC):
         if getattr(cls, "__registered", False):
             return
 
-        async def resolve_callback(
-            message: types.Message, state: FSMContext, value: Any, **data
-        ):
-            state_data = await state.get_data()
-            current_field: _FormFieldData = state_data["current_field"]
-            state_data["values"][current_field.name] = value
-            await state.set_data(state_data)
-
-            current_field_generator = cls.__get_current_field_generator(state.key)
-
-            try:
-                next_field = next(current_field_generator)
-                await state.update_data(current_field=next_field)
-            except StopIteration:
-                state_data = await state.get_data()
-                await state.clear()
-                data["state"] = state
-                form_object = cls.__from_state_data(state_data)
-                cls.__clear_field_generator_cache(state.key)
-                return await form_object.submit(**data)
-
-            await message.answer(next_field.info.enter_message_text)
-
-        async def current_field_filter(message: types.Message, state: FSMContext):
-            state_data = await state.get_data()
-            current_field: _FormFieldData = state_data["current_field"]
-
-            field_filter = current_field.info.filter or cls.__get_filter_from_type(
-                current_field.type
-            )
-
-            filter_result = field_filter.resolve(message)
-
-            if filter_result is None:
-                return False
-
-            return {"value": filter_result}
-
         router.message.register(
-            resolve_callback, FormState.waiting_field_value, current_field_filter
+            cls.__resolve_callback,
+            FormState.waiting_field_value,
+            cls.__current_field_filter,
         )
 
         cls.__registered = True
+
+    @classmethod
+    async def __resolve_callback(
+        cls, message: types.Message, state: FSMContext, value: Any, **data
+    ):
+        state_data = await state.get_data()
+        current_field: _FormFieldData = state_data["current_field"]
+        state_data["values"][current_field.name] = value
+        await state.set_data(state_data)
+
+        current_field_generator = cls.__get_current_field_generator(state.key)
+
+        try:
+            next_field = next(current_field_generator)
+            await state.update_data(current_field=next_field)
+        except StopIteration:
+            state_data = await state.get_data()
+            await state.clear()
+            data["state"] = state
+            form_object = cls.__from_state_data(state_data)
+            cls.__clear_field_generator_cache(state.key)
+            return await form_object.submit(**data)
+
+        await message.answer(next_field.info.enter_message_text)
+
+    @classmethod
+    async def __current_field_filter(cls, message: types.Message, state: FSMContext):
+        state_data = await state.get_data()
+        current_field: _FormFieldData = state_data["current_field"]
+
+        field_filter = current_field.info.filter or cls.__get_filter_from_type(
+            current_field.type
+        )
+
+        filter_result = field_filter.resolve(message)
+
+        if filter_result is None:
+            if current_field.info.error_message_text:
+                await message.answer(current_field.info.error_message_text)
+
+            return False
+
+        return {"value": filter_result}
 
     @abstractmethod
     async def submit(self, **data):
