@@ -130,7 +130,9 @@ class Form(ABC):
         first_field: _FormFieldData = next(field_generator)
 
         await state_ctx.set_state(FormState.waiting_field_value)
-        await state_ctx.update_data(current_field=first_field, values={})
+        await state_ctx.update_data(
+            current_field=first_field, values={}, form_id=id(cls)
+        )
         await state_ctx.bot.send_message(
             state_ctx.key.chat_id, first_field.info.enter_message_text
         )
@@ -173,6 +175,10 @@ class Form(ABC):
     @classmethod
     async def __current_field_filter(cls, message: types.Message, state: FSMContext):
         state_data = await state.get_data()
+
+        if state_data["form_id"] != id(cls):
+            return
+
         current_field: _FormFieldData = state_data["current_field"]
 
         field_filter = current_field.info.filter or cls.__get_filter_from_type(
