@@ -23,6 +23,7 @@ from aiogram.utils.magic_filter import MagicFilter
 # TODO: .from_tortoise_model
 
 TForm = TypeVar("TForm", bound="Form")
+SubmitCallback = Optional[Callable[..., Any]]
 
 
 class FormState(StatesGroup):
@@ -78,11 +79,11 @@ class Form(ABC):
         types.Document: F.document.func(lambda document: document),
     }
 
-    __submit_callback = None
+    __submit_callback: SubmitCallback = None
 
     @classmethod
     def submit(cls):
-        def decorator(submit_callback: Callable):
+        def decorator(submit_callback: SubmitCallback):
             cls.__submit_callback = submit_callback
 
         return decorator
