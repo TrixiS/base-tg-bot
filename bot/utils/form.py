@@ -1,7 +1,9 @@
 import datetime
-from abc import ABC, abstractmethod
+import functools
+import inspect
+from abc import ABC
 from dataclasses import dataclass
-from typing import Any, Dict, Generator, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generator, Optional, Type, TypeVar
 
 from aiogram import F, types
 from aiogram.dispatcher.router import Router
@@ -76,6 +78,15 @@ class Form(ABC):
         types.Document: F.document.func(lambda document: document),
     }
 
+    __submit_callback = None
+
+    @classmethod
+    def submit(cls):
+        def decorator(submit_callback: Callable):
+            cls.__submit_callback = submit_callback
+
+        return decorator
+
     @classmethod
     def __from_state_data(cls, state_data):
         form_object = cls()
@@ -120,6 +131,24 @@ class Form(ABC):
         return field_filter
 
     @classmethod
+    def __prepare_submit_callback(cls, *args, **kwargs):
+        if cls.__submit_callback is None:
+            raise TypeError("Submit callback should be set")
+
+        arg_spec = inspect.getfullargspec(cls.__submit_callback)
+        prepared_kwargs = {
+            k: v
+            for k, v in kwargs.items()
+            if k in arg_spec.args or k in arg_spec.kwonlyargs
+        }
+
+        submit_callback_partial = functools.partial(
+            cls.__submit_callback, *args, **prepared_kwargs
+        )
+
+        return submit_callback_partial
+
+    @classmethod
     async def start(
         cls,
         router: Router,
@@ -162,15 +191,20 @@ class Form(ABC):
         try:
             next_field = next(current_field_generator)
             await state.update_data(current_field=next_field)
+            await message.answer(next_field.info.enter_message_text)
         except StopIteration:
             state_data = await state.get_data()
             await state.clear()
             data["state"] = state
             form_object = cls.__from_state_data(state_data)
             cls.__clear_field_generator_cache(state.key)
-            return await form_object.submit(**data)
 
-        await message.answer(next_field.info.enter_message_text)
+            if cls.__submit_callback:
+                prepared_submit_callback = cls.__prepare_submit_callback(
+                    form_object, **data
+                )
+
+                await prepared_submit_callback()
 
     @classmethod
     async def __current_field_filter(cls, message: types.Message, state: FSMContext):
@@ -194,7 +228,3 @@ class Form(ABC):
             return False
 
         return {"value": filter_result}
-
-    @abstractmethod
-    async def submit(self, **data):
-        ...
