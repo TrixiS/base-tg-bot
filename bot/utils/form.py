@@ -194,18 +194,25 @@ class Form(ABC):
             await state.update_data(current_field=next_field)
             await message.answer(next_field.info.enter_message_text)
         except StopIteration:
-            state_data = await state.get_data()
-            await state.clear()
-            data["state"] = state
-            form_object = cls.__from_state_data(state_data)
             cls.__clear_field_generator_cache(state.key)
 
-            if cls.__submit_callback:
-                prepared_submit_callback = cls.__prepare_submit_callback(
-                    form_object, **data
+            if not cls.__submit_callback:
+                raise TypeError(
+                    f"{cls.__name__} submit callback is {cls.__submit_callback}"
                 )
 
+            state_data = await state.get_data()
+            form_object = cls.__from_state_data(state_data)
+            data["state"] = state
+
+            prepared_submit_callback = cls.__prepare_submit_callback(
+                form_object, **data
+            )
+
+            try:
                 await prepared_submit_callback()
+            finally:
+                await state.clear()
 
     @classmethod
     async def __current_field_filter(cls, message: types.Message, state: FSMContext):

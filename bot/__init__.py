@@ -1,5 +1,3 @@
-from pathlib import Path
-
 __title__ = "bot"
 __path__ = __import__("pkgutil").extend_path(__path__, __name__)
 
