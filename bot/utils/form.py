@@ -58,10 +58,6 @@ class _FormFieldData:
 
 
 class Form(ABC):
-    __field_generator_cache: Dict[
-        StorageKey, Generator[_FormFieldData, None, None]
-    ] = {}
-
     __default_filters = {
         str: F.text,
         int: F.text.func(int),
@@ -95,34 +91,6 @@ class Form(ABC):
         return form_object
 
     @classmethod
-    def __create_current_field_generator(cls):
-        for field_name, field_type in cls.__annotations__.items():
-            field_info = getattr(cls, field_name)
-
-            if not isinstance(field_info, FormFieldInfo):
-                continue
-
-            field_data = _FormFieldData(field_name, field_type, field_info)
-            yield field_data
-
-    @classmethod
-    def __get_current_field_generator(cls, key: StorageKey):
-        if generator := cls.__field_generator_cache.get(key):
-            return generator
-
-        generator = cls.__create_current_field_generator()
-        cls.__field_generator_cache[key] = generator
-        return generator
-
-    @classmethod
-    def __clear_field_generator_cache(cls, key: StorageKey):
-        if key not in cls.__field_generator_cache:
-            return False
-
-        del cls.__field_generator_cache[key]
-        return True
-
-    @classmethod
     def __get_filter_from_type(cls, field_type: Type):
         field_filter = cls.__default_filters.get(field_type)
 
@@ -150,21 +118,48 @@ class Form(ABC):
         return submit_callback_partial
 
     @classmethod
+    def __get_field_data_by_name(cls, name: str):
+        field_info: FormFieldInfo = getattr(cls, name)
+        field_type = cls.__annotations__[name]
+        field_data = _FormFieldData(name, field_type, field_info)
+        return field_data
+
+    @classmethod
+    def __get_next_field(
+        cls, current_field_name: Optional[str]
+    ) -> Optional[_FormFieldData]:
+        field_names = tuple(cls.__annotations__.keys())
+
+        if current_field_name is None:
+            return cls.__get_field_data_by_name(field_names[0])
+
+        current_field_index = field_names.index(current_field_name)
+
+        try:
+            next_field_name = field_names[current_field_index + 1]
+            return cls.__get_field_data_by_name(next_field_name)
+        except IndexError:
+            return None
+
+    @classmethod
     async def start(
         cls,
         router: Router,
         state_ctx: FSMContext,
     ):
-        cls.__clear_field_generator_cache(state_ctx.key)
-        field_generator = cls.__get_current_field_generator(state_ctx.key)
-        first_field: _FormFieldData = next(field_generator)
+        first_field = cls.__get_next_field(None)
 
         await state_ctx.set_state(FormState.waiting_field_value)
+
         await state_ctx.update_data(
-            current_field=first_field, values={}, form_id=id(cls)
+            current_field_name=first_field.name,  # type: ignore
+            values={},
+            form_name=cls.__name__,
         )
+
         await state_ctx.bot.send_message(
-            state_ctx.key.chat_id, first_field.info.enter_message_text
+            state_ctx.key.chat_id,
+            first_field.info.enter_message_text,  # type: ignore
         )
 
         if getattr(cls, "__registered", False):
@@ -183,45 +178,41 @@ class Form(ABC):
         cls, message: types.Message, state: FSMContext, value: Any, **data
     ):
         state_data = await state.get_data()
-        current_field: _FormFieldData = state_data["current_field"]
-        state_data["values"][current_field.name] = value
+        current_field_name: str = state_data["current_field_name"]
+        state_data["values"][current_field_name] = value
         await state.set_data(state_data)
 
-        current_field_generator = cls.__get_current_field_generator(state.key)
+        next_field = cls.__get_next_field(current_field_name)
 
-        try:
-            next_field = next(current_field_generator)
-            await state.update_data(current_field=next_field)
-            await message.answer(next_field.info.enter_message_text)
-        except StopIteration:
-            cls.__clear_field_generator_cache(state.key)
+        if next_field:
+            await state.update_data(current_field_name=next_field.name)
+            return await message.answer(next_field.info.enter_message_text)
 
-            if not cls.__submit_callback:
-                raise TypeError(
-                    f"{cls.__name__} submit callback is {cls.__submit_callback}"
-                )
-
-            state_data = await state.get_data()
-            form_object = cls.__from_state_data(state_data)
-            data["state"] = state
-
-            prepared_submit_callback = cls.__prepare_submit_callback(
-                form_object, **data
+        if not cls.__submit_callback:
+            raise TypeError(
+                f"{cls.__name__} submit callback is {cls.__submit_callback}"
             )
 
-            try:
-                await prepared_submit_callback()
-            finally:
-                await state.clear()
+        state_data = await state.get_data()
+        form_object = cls.__from_state_data(state_data)
+        data["state"] = state
+
+        prepared_submit_callback = cls.__prepare_submit_callback(form_object, **data)
+
+        try:
+            await prepared_submit_callback()
+        finally:
+            await state.clear()
 
     @classmethod
     async def __current_field_filter(cls, message: types.Message, state: FSMContext):
         state_data = await state.get_data()
 
-        if state_data["form_id"] != id(cls):
+        if state_data["form_name"] != cls.__name__:
             return
 
-        current_field: _FormFieldData = state_data["current_field"]
+        current_field_name: str = state_data["current_field_name"]
+        current_field = cls.__get_field_data_by_name(current_field_name)
 
         field_filter = current_field.info.filter or cls.__get_filter_from_type(
             current_field.type
