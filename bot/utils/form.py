@@ -2,20 +2,22 @@ import datetime
 import functools
 import inspect
 from abc import ABC, ABCMeta
+from asyncio import iscoroutine
 from dataclasses import dataclass
-from typing import Any, Callable, ClassVar, Optional, Type, TypeVar
+from typing import (Any, Awaitable, Callable, ClassVar, Coroutine, Optional,
+                    Type, TypeVar, Union)
 
 from aiogram import F, types
 from aiogram.dispatcher.router import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.base import StorageKey
 from aiogram.utils.magic_filter import MagicFilter
 
 # TODO: support for any kind of filters (e. g. async, Filter subclass, etc...)
 
 TForm = TypeVar("TForm", bound="Form")
 SubmitCallback = Optional[Callable[..., Any]]
+FormFilter = Union[MagicFilter, Callable[[types.Message], Awaitable[Any]]]
 
 
 class FormState(StatesGroup):
@@ -26,13 +28,13 @@ class FormState(StatesGroup):
 class FormFieldInfo:
     enter_message_text: str
     error_message_text: Optional[str]
-    filter: Optional[MagicFilter]
+    filter: Optional[FormFilter]
 
 
 def FormField(
     *,
     enter_message_text: str,
-    filter: Optional[MagicFilter] = None,
+    filter: Optional[FormFilter] = None,
     error_message_text: Optional[str] = None,
 ) -> Any:
     return FormFieldInfo(
@@ -202,8 +204,6 @@ class Form(ABC, metaclass=FormMeta):
         try:
             await prepared_submit_callback()
         finally:
-            print("Clear?", cls.clear_state_on_submit)
-
             if cls.clear_state_on_submit:
                 await state.clear()
 
@@ -221,9 +221,12 @@ class Form(ABC, metaclass=FormMeta):
             current_field.type
         )
 
-        filter_result = field_filter.resolve(message)
+        if inspect.iscoroutinefunction(field_filter):
+            filter_result = await field_filter(message)
+        else:
+            filter_result = field_filter.resolve(message)
 
-        if filter_result is None:
+        if not filter_result:
             if current_field.info.error_message_text:
                 await message.answer(current_field.info.error_message_text)
 
