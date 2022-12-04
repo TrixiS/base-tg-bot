@@ -1,9 +1,9 @@
 import datetime
 import functools
 import inspect
-from abc import ABC
+from abc import ABC, ABCMeta
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Generator, Optional, Type, TypeVar
+from typing import Any, Callable, ClassVar, Optional, Type, TypeVar
 
 from aiogram import F, types
 from aiogram.dispatcher.router import Router
@@ -12,15 +12,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.utils.magic_filter import MagicFilter
 
-# TODO: support for pattern enter message like
-#       class SomeForm(Form, enter_message_pattern="Enter {field_name}")
-
-# TODO: support for enter message callback
-
 # TODO: support for any kind of filters (e. g. async, Filter subclass, etc...)
-
-# TODO: try again message text
-# TODO: .from_tortoise_model
 
 TForm = TypeVar("TForm", bound="Form")
 SubmitCallback = Optional[Callable[..., Any]]
@@ -57,7 +49,15 @@ class _FormFieldData:
     info: FormFieldInfo
 
 
-class Form(ABC):
+class FormMeta(ABCMeta):
+    clear_state_on_submit: ClassVar[bool] = True
+
+    def __new__(cls, *args, **kwargs):
+        cls.clear_state_on_submit = kwargs.get("clear_state_on_submit", True)
+        return super().__new__(cls, *args)
+
+
+class Form(ABC, metaclass=FormMeta):
     __default_filters = {
         str: F.text,
         int: F.text.func(int),
@@ -202,7 +202,10 @@ class Form(ABC):
         try:
             await prepared_submit_callback()
         finally:
-            await state.clear()
+            print("Clear?", cls.clear_state_on_submit)
+
+            if cls.clear_state_on_submit:
+                await state.clear()
 
     @classmethod
     async def __current_field_filter(cls, message: types.Message, state: FSMContext):
