@@ -57,8 +57,7 @@ router = Router()
 root_handlers_router.include_router(router)
 """
 
-    DIR_ROUTER_CODE = """from aiogram.dispatcher.router import Router
-
+    DIR_ROUTER_CODE = """from ...utils.router import Router
 from .. import root_handlers_router
 
 router = Router()
@@ -79,7 +78,10 @@ root_handlers_router.include_router(router)
     init_filepath = router_dirpath / "__init__.py"
     router_dirpath.mkdir(exist_ok=True)
     init_filepath.write_text(DIR_ROUTER_CODE, encoding=ENCODING)
-    typer.echo(f"Created router in {router_dirpath}")
+    typer.echo(f"Created router in {init_filepath}")
+
+    if jump:
+        jump_to_file(init_filepath)
 
 
 @app.command()
