@@ -2,10 +2,8 @@ import datetime
 import functools
 import inspect
 from abc import ABC, ABCMeta
-from asyncio import iscoroutine
 from dataclasses import dataclass
-from typing import (Any, Awaitable, Callable, ClassVar, Coroutine, Optional,
-                    Type, TypeVar, Union)
+from typing import Any, Awaitable, Callable, ClassVar, Optional, Type, TypeVar, Union
 
 from aiogram import F, types
 from aiogram.dispatcher.router import Router
@@ -13,11 +11,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.magic_filter import MagicFilter
 
-# TODO: support for any kind of filters (e. g. async, Filter subclass, etc...)
-
 TForm = TypeVar("TForm", bound="Form")
 SubmitCallback = Optional[Callable[..., Any]]
-FormFilter = Union[MagicFilter, Callable[[types.Message], Awaitable[Any]]]
+FormFilter = Union[MagicFilter, Callable[[types.Message, Any], Awaitable[Any]]]
 
 
 class FormState(StatesGroup):
@@ -106,18 +102,19 @@ class Form(ABC, metaclass=FormMeta):
         if cls.__submit_callback is None:
             raise TypeError("Submit callback should be set")
 
-        arg_spec = inspect.getfullargspec(cls.__submit_callback)
+        return cls.__prepare_function(cls.__submit_callback, *args, **kwargs)
+
+    @classmethod
+    def __prepare_function(cls, func: Callable, *args, **kwargs):
+        arg_spec = inspect.getfullargspec(func)
         prepared_kwargs = {
             k: v
             for k, v in kwargs.items()
             if k in arg_spec.args or k in arg_spec.kwonlyargs
         }
 
-        submit_callback_partial = functools.partial(
-            cls.__submit_callback, *args, **prepared_kwargs
-        )
-
-        return submit_callback_partial
+        partial_func = functools.partial(func, *args, **prepared_kwargs)
+        return partial_func
 
     @classmethod
     def __get_field_data_by_name(cls, name: str):
@@ -208,7 +205,9 @@ class Form(ABC, metaclass=FormMeta):
                 await state.clear()
 
     @classmethod
-    async def __current_field_filter(cls, message: types.Message, state: FSMContext):
+    async def __current_field_filter(
+        cls, message: types.Message, state: FSMContext, **data
+    ):
         state_data = await state.get_data()
 
         if state_data["form_name"] != cls.__name__:
@@ -222,7 +221,11 @@ class Form(ABC, metaclass=FormMeta):
         )
 
         if inspect.iscoroutinefunction(field_filter):
-            filter_result = await field_filter(message)
+            prepared_field_filter = cls.__prepare_function(
+                field_filter, message, **data
+            )
+
+            filter_result = await prepared_field_filter()
         else:
             filter_result = field_filter.resolve(message)
 
