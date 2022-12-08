@@ -3,7 +3,17 @@ import functools
 import inspect
 from abc import ABC, ABCMeta
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, ClassVar, Optional, Type, TypeVar, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    ClassVar,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from aiogram import F, types
 from aiogram.dispatcher.router import Router
@@ -50,9 +60,16 @@ class _FormFieldData:
 class FormMeta(ABCMeta):
     clear_state_on_submit: ClassVar[bool] = True
 
-    def __new__(cls, *args, **kwargs):
+    __form_cls_names: List[str] = []
+
+    def __new__(cls, cls_name: str, *args, **kwargs):
         cls.clear_state_on_submit = kwargs.get("clear_state_on_submit", True)
-        return super().__new__(cls, *args)
+
+        if cls_name in cls.__form_cls_names:
+            raise NameError("Form with the same name does exist")
+
+        cls.__form_cls_names.append(cls_name)
+        return super().__new__(cls, cls_name, *args)
 
 
 class Form(ABC, metaclass=FormMeta):
