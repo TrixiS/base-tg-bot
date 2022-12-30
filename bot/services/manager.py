@@ -1,6 +1,5 @@
 import asyncio
 import re
-from typing import Dict
 
 from .base import Service
 
@@ -15,7 +14,7 @@ def snake_case(s: str):
 
 class ServiceManager:
     def __init__(self):
-        self._services: Dict[str, Service] = {}
+        self._services: dict[str, Service] = {}
 
     def register(self, service: Service):
         service_class_snake_name = snake_case(service.__class__.__name__)
