@@ -3,16 +3,8 @@ import asyncio
 from aiogram import exceptions
 from aiogram.client.bot import Bot as AiogramBot
 
-from ..models.config.bot_config import BotConfig
-from ..models.phrases.bot_phrases import BotPhrases
-
 
 class Bot(AiogramBot):
-    def __init__(self, config: BotConfig, phrases: BotPhrases, *args, **kwargs):
-        super().__init__(*args, token=config.bot_token, **kwargs)
-        self.config = config
-        self.phrases = phrases
-
     async def __call__(self, *args, **kwargs):
         while True:
             try:

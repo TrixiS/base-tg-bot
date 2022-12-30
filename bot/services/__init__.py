@@ -1,17 +1,12 @@
-from ..utils.dispatcher import Dispatcher
 from .database import DatabaseService
+from .manager import ServiceManager
 from .schedule import ScheduleService, jobs
 
 
-async def setup(dispatcher: Dispatcher):
+async def setup(manager: ServiceManager):
     schedule_service = ScheduleService()
-    database_service = DatabaseService()
 
-    dispatcher.services.register(database_service)
-    dispatcher.services.register(schedule_service)
+    manager.register(DatabaseService())
+    manager.register(schedule_service)
 
-    await dispatcher.services.setup_all()
-
-
-async def dispose(dispatcher: Dispatcher):
-    await dispatcher.services.dispose_all()
+    await manager.setup_all()

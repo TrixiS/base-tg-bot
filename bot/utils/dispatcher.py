@@ -4,7 +4,7 @@ from aiogram import Dispatcher as AiogramDispatcher
 from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage
 from aiogram.fsm.strategy import FSMStrategy
 
-from .service_manager import ServiceManager
+from ..services.manager import ServiceManager
 
 
 class Dispatcher(AiogramDispatcher):

@@ -2,7 +2,7 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 
-from ..protocols.telegram_user_event import TelegramUserEvent
+from ..protocols import TelegramUserEvent
 from ..utils.dispatcher import Dispatcher
 
 

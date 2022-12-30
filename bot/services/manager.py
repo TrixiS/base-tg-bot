@@ -2,7 +2,7 @@ import asyncio
 import re
 from typing import Dict
 
-from ..protocols.service import Service
+from .base import Service
 
 
 def snake_case(s: str):

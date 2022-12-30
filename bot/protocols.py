@@ -4,4 +4,4 @@ from aiogram import types
 
 
 class TelegramUserEvent(Protocol):
-    from_user: Optional[types.User]
+    from_user: types.User

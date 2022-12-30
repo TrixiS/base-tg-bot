@@ -1,9 +1,10 @@
 from tortoise import Tortoise
 
-from ...bot import bot
+from ...settings import settings
+from ..base import Service
 
 TORTOISE_ORM = {
-    "connections": {"default": bot.config.database_uri},
+    "connections": {"default": settings.database_uri},
     "apps": {
         "models": {
             "models": ["bot.services.database.models", "aerich.models"],
@@ -13,7 +14,7 @@ TORTOISE_ORM = {
 }
 
 
-class DatabaseService:
+class DatabaseService(Service):
     async def setup(self):
         await Tortoise.init(TORTOISE_ORM)
         await Tortoise.generate_schemas()

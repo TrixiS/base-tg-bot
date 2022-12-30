@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from ... import markups
 from ...bot import bot
+from ...phrases import phrases
 from ...services.database.models import BotUser
 from . import router
 
@@ -11,4 +12,4 @@ from . import router
 @router.message(CommandStart())
 async def start_handler(message: types.Message, state: FSMContext):
     await state.clear()
-    await message.answer(bot.phrases.start_message)
+    await message.answer(phrases.start_message)

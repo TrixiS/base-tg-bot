@@ -1,7 +1,0 @@
-﻿{
-  "admin": {
-    "admin": "Админка"
-  },
-  "bot_started": "Бот {me.username} успешно запущен",
-  "start_message": "Remove or update the start handler"
-}

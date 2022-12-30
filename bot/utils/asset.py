@@ -1,13 +1,13 @@
 from aiogram import types
 
-from ..utils.paths import root_path
+from ..utils.paths import ROOT_PATH
 
-assets_path = root_path / "assets"
+ASSETS_PATH = ROOT_PATH / "assets"
 
 
 class Asset:
     def __init__(self, filename: str):
-        self.filepath = assets_path / filename
+        self.filepath = ASSETS_PATH / filename
         self.bytes = self.filepath.read_bytes()
 
     def to_input_file(self):

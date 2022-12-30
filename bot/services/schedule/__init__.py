@@ -3,11 +3,11 @@ from typing import Optional
 
 import aioschedule
 
-from . import jobs
+from ..base import Service
 
 
 # TODO: use apscheduler?
-class ScheduleService(aioschedule.Scheduler):
+class ScheduleService(Service, aioschedule.Scheduler):
     def __init__(self, *, pending_jobs_interval: int = 60) -> None:
         super().__init__()
         self.pending_jobs_interval = pending_jobs_interval

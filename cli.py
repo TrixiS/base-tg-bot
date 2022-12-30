@@ -1,44 +1,33 @@
 import os
 import sys
 from pathlib import Path
+from typing import Iterable
 
 import typer
 
 from bot import ENCODING
-from bot.models.config.bot_config import BotConfig
-from bot.models.phrases.bot_phrases import BotPhrases
-from bot.utils.paths import routers_path
+from bot.settings import Settings
+from bot.utils.paths import ROOT_PATH, ROUTERS_PATH
 
 app = typer.Typer()
 
 
 @app.command()
 def dev():
-    for config_filepath in BotConfig.__filepaths__():
-        create_json_file(config_filepath)
-        BotConfig.refresh(config_filepath)
+    for path in filepath_generator(Settings.Config.env_file):
+        path.touch(exist_ok=True)
+
+    update_settings()
 
 
 @app.command()
 def update():
-    for config_filepath in BotConfig.__exist_filepaths__():
-        BotConfig.update(config_filepath)
-
-    for phrases_filepath in BotPhrases.__exist_filepaths__():
-        BotPhrases.update(phrases_filepath)
+    update_settings()
 
 
 @app.command()
 def refresh():
-    for config_filepath in BotConfig.__exist_filepaths__():
-        if config_filepath.name.startswith("_"):
-            continue
-
-        BotConfig.refresh(config_filepath)
-
-    for phrases_filepath in BotPhrases.__exist_filepaths__():
-        BotPhrases.refresh(phrases_filepath)
-
+    refresh_settings()
     os.system(f"{sys.executable} -m pip freeze > requirements.txt")
 
 
@@ -65,7 +54,7 @@ root_handlers_router.include_router(router)
 """
 
     if file:
-        router_filepath = routers_path / f"{name}.py"
+        router_filepath = ROUTERS_PATH / f"{name}.py"
         router_filepath.write_text(FILE_ROUTER_CODE, encoding=ENCODING)
         typer.echo(f"Created router in {router_filepath}")
 
@@ -74,7 +63,7 @@ root_handlers_router.include_router(router)
 
         return
 
-    router_dirpath = routers_path / name
+    router_dirpath = ROUTERS_PATH / name
     init_filepath = router_dirpath / "__init__.py"
     router_dirpath.mkdir(exist_ok=True)
     init_filepath.write_text(DIR_ROUTER_CODE, encoding=ENCODING)
@@ -87,15 +76,17 @@ root_handlers_router.include_router(router)
 @app.command()
 def handler(router: str, name: str, jump: bool = False):
     HANDLER_CODE = """from aiogram import F, types
+from aiogram.filters.command import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from ... import markups
 from ...bot import bot
+from ...phrases import phrases
 from ...services.database.models import BotUser
 from . import router
 """
 
-    router_dirpath = routers_path / router
+    router_dirpath = ROUTERS_PATH / router
 
     if not router_dirpath.exists():
         return typer.echo(f"Router {router} does not exist")
@@ -116,23 +107,49 @@ def jump_to_file(path: Path):
     os.system(f"code {path.absolute()}")
 
 
-def create_json_file(filepath: Path) -> bool:
-    if filepath.exists():
-        return False
-
-    filepath.write_text(r"{}", encoding="utf")
-    return True
+def filepath_generator(filenames: Iterable[Path]):
+    yield from map(lambda filename: ROOT_PATH / filename, filenames)
 
 
-def create_handler(handlers_dirpath: Path, handler_name: str):
-    HANDLER_CODE = """from aiogram import types
+def write_settings_files(text: str, filenames: Iterable[Path] | None = None):
+    for path in filepath_generator(filenames or Settings.Config.env_file):
+        path.write_text(text, encoding=ENCODING)
 
-from ..bot import dispatcher, bot
-"""
 
-    handler_path = handlers_dirpath / f"{handler_name.lower()}.py"
-    handler_path.write_text(HANDLER_CODE, ENCODING)
-    return handler_path
+def update_settings():
+    schema = Settings.schema()
+    settings_object = Settings()
+
+    def settings_properties_values_generator():
+        for prop in schema["properties"].keys():
+            value = getattr(settings_object, prop)
+            yield prop, value
+
+    write_settings_files(
+        "\n".join(
+            f"{prop.upper()}={value}"
+            for prop, value in settings_properties_values_generator()
+        ),
+    )
+
+
+def refresh_settings():
+    schema = Settings.schema()
+
+    def settings_properties_defaults_generator():
+        for prop in schema["properties"].keys():
+            yield prop, schema["properties"][prop]["default"]
+
+    write_settings_files(
+        "\n".join(
+            f"{prop.upper()}={value}"
+            for prop, value in settings_properties_defaults_generator()
+        ),
+        filter(
+            lambda filepath: filepath.suffix != ".dev",
+            Settings.Config.env_file,
+        ),
+    )
 
 
 if __name__ == "__main__":

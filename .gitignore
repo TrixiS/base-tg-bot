@@ -3,6 +3,7 @@ _*dev*
 *.sqlite3*
 *.lock
 bot/routers/user/form.py
+.env.dev
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -108,7 +109,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
