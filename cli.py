@@ -76,7 +76,6 @@ root_handlers_router.include_router(router)
 @app.command()
 def handler(router: str, name: str, jump: bool = False):
     HANDLER_CODE = """from aiogram import F, types
-from aiogram.filters.command import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from ... import markups
