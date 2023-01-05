@@ -38,6 +38,7 @@ from aiogram.fsm.context import FSMContext
 
 from .. import markups
 from ..bot import bot
+from ..phrases import phrases
 from ..services.database.models import BotUser
 from ..utils.router import Router
 from . import root_handlers_router
