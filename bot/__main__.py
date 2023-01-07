@@ -1,14 +1,32 @@
+import asyncio
 import logging
 
-from . import middleware, routers, services
+from . import routers
 from .bot import bot, dispatcher
+from .database import DatabaseService, bot_user_middleware
 from .phrases import phrases
+from .schedule import ScheduleService
 from .utils.paths import ROOT_PATH, ROUTERS_PATH
+from .utils.services.middleware import ServicesMiddleware
+
+
+async def setup_services():
+    schedule_service = ScheduleService()
+
+    await dispatcher.services.register(DatabaseService(), schedule_service).setup_all()
+
+
+def setup_middleware():
+    dispatcher.message.middleware.register(bot_user_middleware)  # type: ignore
+    dispatcher.callback_query.middleware.register(bot_user_middleware)  # type: ignore
+
+    services_di_middleware = ServicesMiddleware(dispatcher)
+    dispatcher.message.middleware.register(services_di_middleware)
+    dispatcher.callback_query.middleware.register(services_di_middleware)
 
 
 @dispatcher.startup()
 async def on_startup():
-    await services.setup(dispatcher.services)
     me = await bot.get_me()
     print(phrases.bot_started.format(me=me))
 
@@ -38,7 +56,7 @@ def import_routers():
             __import__(f"bot.routers.{router_path.stem}.{handler_file_path.stem}")
 
 
-def main():
+async def main():
     log_filename = str((ROOT_PATH / "logs.log").resolve())
 
     logging.basicConfig(
@@ -47,12 +65,14 @@ def main():
         format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
     )
 
-    middleware.setup(dispatcher)
+    setup_middleware()
+    await setup_services()
+
     import_routers()
-    dispatcher.include_router(routers.root_handlers_router)
+    dispatcher.include_router(routers.root_router)
 
     used_update_types = dispatcher.resolve_used_update_types()
-    dispatcher.run_polling(bot, allowed_updates=used_update_types)
+    await dispatcher.start_polling(bot, allowed_updates=used_update_types)
 
 
-main()
+asyncio.run(main())

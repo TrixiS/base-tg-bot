@@ -4,8 +4,8 @@ from aiogram.fsm.context import FSMContext
 
 from ... import markups
 from ...bot import bot
+from ...database.models import BotUser
 from ...phrases import phrases
-from ...services.database.models import BotUser
 from . import router
 
 

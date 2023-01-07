@@ -1,19 +1,18 @@
 from typing import Any, Awaitable, Callable, Dict
 
-from aiogram.dispatcher.middlewares.base import BaseMiddleware
+from aiogram import BaseMiddleware, types
 
-from ..protocols import TelegramUserEvent
-from ..utils.dispatcher import Dispatcher
+from ..dispatcher import Dispatcher
 
 
-class ServicesDIMiddleware(BaseMiddleware):
+class ServicesMiddleware(BaseMiddleware):
     def __init__(self, dispatcher: Dispatcher):
         self.dispatcher = dispatcher
 
     async def __call__(
         self,
-        handler: Callable[[TelegramUserEvent, Dict[str, Any]], Awaitable[Any]],
-        event: TelegramUserEvent,
+        handler: Callable[[types.TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: types.TelegramObject,
         data: Dict[str, Any],
     ) -> Any:
         data.update(self.dispatcher.services._services)

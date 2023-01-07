@@ -1,12 +1,9 @@
-from ...filters.admin import AdminFilter
+from ...filters import admin_filter
 from ...utils.router import Router
-from .. import root_handlers_router
-
-admin_filter = AdminFilter()
+from .. import root_router
 
 router = Router()
 
 router.message.filter(admin_filter)
 router.callback_query.filter(admin_filter)
-
-root_handlers_router.include_router(router)
+root_router.include_router(router)

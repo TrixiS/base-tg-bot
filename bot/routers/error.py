@@ -1,10 +1,10 @@
 ﻿import logging
 
 from ..utils.router import Router
-from . import root_handlers_router
+from . import root_router
 
 router = Router()
-root_handlers_router.include_router(router)
+root_router.include_router(router)
 
 
 @router.errors()

@@ -39,19 +39,19 @@ from aiogram.fsm.context import FSMContext
 from .. import markups
 from ..bot import bot
 from ..phrases import phrases
-from ..services.database.models import BotUser
+from ..database.models import BotUser
 from ..utils.router import Router
-from . import root_handlers_router
+from . import root_router
 
 router = Router()
-root_handlers_router.include_router(router)
+root_router.include_router(router)
 """
 
     DIR_ROUTER_CODE = """from ...utils.router import Router
-from .. import root_handlers_router
+from .. import root_router
 
 router = Router()
-root_handlers_router.include_router(router)
+root_router.include_router(router)
 """
 
     if file:
@@ -82,7 +82,7 @@ from aiogram.fsm.context import FSMContext
 from ... import markups
 from ...bot import bot
 from ...phrases import phrases
-from ...services.database.models import BotUser
+from ...database.models import BotUser
 from . import router
 """
 

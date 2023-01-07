@@ -16,10 +16,16 @@ class ServiceManager:
     def __init__(self):
         self._services: dict[str, Service] = {}
 
-    def register(self, service: Service):
+    def _register(self, service: Service):
         service_class_snake_name = snake_case(service.__class__.__name__)
         self._services[service_class_snake_name] = service
-        return service
+        return self
+
+    def register(self, *services: Service):
+        for service in services:
+            self._register(service)
+
+        return self
 
     def unregister(self, service: Service):
         service_class_snake_name = snake_case(service.__class__.__name__)
@@ -30,7 +36,7 @@ class ServiceManager:
             return
 
         service_setup_coros = (service.setup() for service in self._services.values())
-        await asyncio.gather(*(service_setup_coros))
+        await asyncio.gather(*service_setup_coros)
 
     async def dispose_all(self):
         if not self._services:
