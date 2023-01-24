@@ -118,7 +118,7 @@ def write_settings_files(text: str, filenames: Iterable[Path] | None = None):
 
 def update_settings():
     schema = Settings.schema()
-    settings_object = Settings()
+    settings_object = Settings(_env_file=Settings.Config.env_file[0])  # type: ignore
 
     def settings_properties_values_generator():
         for prop in schema["properties"].keys():
