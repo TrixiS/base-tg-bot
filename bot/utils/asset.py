@@ -12,8 +12,8 @@ AssetPath = Path | str
 
 
 class Asset:
-    def __init__(self, path: Path, bytes: bytes):
-        self.path = path
+    def __init__(self, filename: str, bytes: bytes):
+        self.filename = filename
         self.bytes = bytes
 
     @staticmethod
@@ -28,15 +28,15 @@ class Asset:
         filepath = cls.__get_asset_filepath(path)
 
         with open(path, "rb") as f:
-            return cls(filepath, f.read())
+            return cls(filepath.name, f.read())
 
     @classmethod
     async def async_from_file(cls, path: AssetPath):
         filepath = cls.__get_asset_filepath(path)
 
         async with aiofiles.open(path, "rb") as f:
-            return cls(filepath, await f.read())
+            return cls(filepath.name, await f.read())
 
     @functools.cached_property
     def input_file(self):
-        return types.BufferedInputFile(self.bytes, self.path.name)
+        return types.BufferedInputFile(self.bytes, self.filename)
