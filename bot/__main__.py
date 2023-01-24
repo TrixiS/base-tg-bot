@@ -50,7 +50,10 @@ def import_routers():
         )
 
         for handler_file_path in sorted_handler_file_paths:
-            if not handler_file_path.is_file():
+            if not handler_file_path.is_file() or (
+                handler_file_path.stem.startswith("__")
+                and handler_file_path.stem.endswith("__")
+            ):
                 continue
 
             __import__(f"bot.routers.{router_path.stem}.{handler_file_path.stem}")
