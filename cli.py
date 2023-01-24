@@ -28,7 +28,9 @@ def update():
 @app.command()
 def refresh():
     refresh_settings()
-    os.system(f"{sys.executable} -m pip freeze > requirements.txt")
+    os.system(
+        "poetry export -f requirements.txt --output requirements.txt --without-hashes"
+    )
 
 
 @app.command()

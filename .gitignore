@@ -1,7 +1,6 @@
 # Custom
 _*dev*
 *.sqlite3*
-*.lock
 bot/routers/user/form.py
 .env.dev
 
