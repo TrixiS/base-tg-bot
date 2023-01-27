@@ -1,10 +1,10 @@
-from aiogram import types
-
 from ..settings import settings
+from ..utils.protocols import TelegramUserEvent
 
 
-async def admin_filter(telegram_object: types.CallbackQuery | types.Message):
-    return (
-        telegram_object.from_user
-        and telegram_object.from_user.id == settings.admin_user_id
-    )
+def is_admin(user_id: int):
+    return settings.admin_user_id == user_id
+
+
+async def admin_filter(telegram_object: TelegramUserEvent):
+    return telegram_object.from_user and is_admin(telegram_object.from_user.id)

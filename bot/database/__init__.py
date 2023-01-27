@@ -1,10 +1,10 @@
-from typing import Any, Awaitable, Callable, Dict
+from typing import Any, Awaitable, Callable
 
-from aiogram import types
 from tortoise import Tortoise
 
 from ..database.models import BotUser
 from ..settings import settings
+from ..utils.protocols import TelegramUserEvent
 from ..utils.services.base import Service
 
 TORTOISE_ORM = {
@@ -28,11 +28,9 @@ class DatabaseService(Service):
 
 
 async def bot_user_middleware(
-    handler: Callable[
-        [types.Message | types.CallbackQuery, Dict[str, Any]], Awaitable[Any]
-    ],
-    event: types.Message | types.CallbackQuery,
-    data: Dict[str, Any],
+    handler: Callable[[TelegramUserEvent, dict[str, Any]], Awaitable[Any]],
+    event: TelegramUserEvent,
+    data: dict[str, Any],
 ) -> Any:
     if event.from_user is None:
         return

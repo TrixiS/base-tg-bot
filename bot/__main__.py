@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from . import routers
+from . import routers, state
 from .bot import bot, dispatcher
 from .database import DatabaseService, bot_user_middleware
 from .phrases import phrases
@@ -17,6 +17,9 @@ async def setup_services():
 
 
 def setup_middleware():
+    dispatcher.message.middleware.register(state.state_data_middleware)
+    dispatcher.callback_query.middleware.register(state.state_data_middleware)
+
     dispatcher.message.middleware.register(bot_user_middleware)  # type: ignore
     dispatcher.callback_query.middleware.register(bot_user_middleware)  # type: ignore
 
