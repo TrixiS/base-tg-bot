@@ -27,14 +27,14 @@ class Asset:
     def from_file(cls, path: AssetPath):
         filepath = cls.__get_asset_filepath(path)
 
-        with open(path, "rb") as f:
+        with open(filepath, "rb") as f:
             return cls(filepath.name, f.read())
 
     @classmethod
     async def async_from_file(cls, path: AssetPath):
         filepath = cls.__get_asset_filepath(path)
 
-        async with aiofiles.open(path, "rb") as f:
+        async with aiofiles.open(filepath, "rb") as f:
             return cls(filepath.name, await f.read())
 
     @functools.cached_property
