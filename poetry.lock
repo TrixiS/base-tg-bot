@@ -69,14 +69,14 @@ resolved_reference = "fad45c66aa7833eab8c60d87cb2567c4012de655"
 
 [[package]]
 name = "aiogram3-form"
-version = "0.2.1"
+version = "0.2.2"
 description = "A library to create forms in aiogram3"
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "aiogram3_form-0.2.1-py3-none-any.whl", hash = "sha256:ca296b46b7fd66380f85f26b5397e46095fedc974c9439c776eca5bb1d7ebcbf"},
-    {file = "aiogram3_form-0.2.1.tar.gz", hash = "sha256:0142041c91001c8d11d7a3d18d428d8b489866413615eec4daa837bb8b1de00c"},
+    {file = "aiogram3_form-0.2.2-py3-none-any.whl", hash = "sha256:a9b09b89e646ea017b45a0fb1ebffd51e9c34fe2b0da61508519e5d0e143872d"},
+    {file = "aiogram3_form-0.2.2.tar.gz", hash = "sha256:c3370b32d04c7f2abce49a1b9d9cc91ab2d46558a605ce22d1999cc31f4728b3"},
 ]
 
 [[package]]
@@ -773,14 +773,14 @@ test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.
 
 [[package]]
 name = "typing-extensions"
-version = "4.4.0"
+version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},
-    {file = "typing_extensions-4.4.0.tar.gz", hash = "sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa"},
+    {file = "typing_extensions-4.5.0-py3-none-any.whl", hash = "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"},
+    {file = "typing_extensions-4.5.0.tar.gz", hash = "sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb"},
 ]
 
 [[package]]
@@ -874,4 +874,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d6ff2722f27496e3c50e1965c3e42a14cd99a69e9d7ba4eb233300e9a5e79055"
+content-hash = "b76fbcecf0be55b1008a77cea44d6ff8f4dfc628d3ca74651cbc33c1542baa90"
