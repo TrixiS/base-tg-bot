@@ -22,6 +22,7 @@ def setup_middleware():
 
     dispatcher.message.middleware.register(bot_user_middleware)  # type: ignore
     dispatcher.callback_query.middleware.register(bot_user_middleware)  # type: ignore
+    dispatcher.my_chat_member.middleware.register(bot_user_middleware)  # type: ignore
 
     services_di_middleware = ServicesMiddleware(dispatcher)
     dispatcher.message.middleware.register(services_di_middleware)
