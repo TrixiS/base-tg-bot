@@ -7,7 +7,7 @@ from .admin_phrases import AdminPhrases
 class BotPhrases:
     admin = AdminPhrases()
     bot_started = "Бот {me.username} успешно запущен"
-    start_message = "..."
+    start_message_text = "..."
 
 
 phrases = BotPhrases()
