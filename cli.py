@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 from typing import Iterable
 
@@ -14,7 +13,7 @@ app = typer.Typer()
 
 @app.command()
 def dev():
-    for path in filepath_generator(Settings.Config.env_file):
+    for path in generate_filepaths(Settings.Config.env_file):
         path.touch(exist_ok=True)
 
     update_settings()
@@ -23,14 +22,6 @@ def dev():
 @app.command()
 def update():
     update_settings()
-
-
-@app.command()
-def refresh():
-    refresh_settings()
-    os.system(
-        "poetry export -f requirements.txt --output requirements.txt --without-hashes"
-    )
 
 
 @app.command()
@@ -109,49 +100,28 @@ def jump_to_file(path: Path):
     os.system(f"code {path.absolute()}")
 
 
-def filepath_generator(filenames: Iterable[Path]):
+def generate_filepaths(filenames: Iterable[Path]):
     yield from map(lambda filename: ROOT_PATH / filename, filenames)
-
-
-def write_settings_files(text: str, filenames: Iterable[Path] | None = None):
-    for path in filepath_generator(filenames or Settings.Config.env_file):
-        path.write_text(text, encoding=ENCODING)
 
 
 def update_settings():
     schema = Settings.schema()
-    settings_object = Settings(_env_file=Settings.Config.env_file[0])  # type: ignore
 
-    def settings_properties_values_generator():
-        for prop in schema["properties"].keys():
-            value = getattr(settings_object, prop)
-            yield prop, value
+    for env_file in Settings.Config.env_file:
+        settings_object = Settings(_env_file=env_file)  # type: ignore
 
-    write_settings_files(
-        "\n".join(
-            f"{prop.upper()}={value}"
-            for prop, value in settings_properties_values_generator()
-        ),
-    )
+        def settings_properties_values_generator():
+            for prop in schema["properties"].keys():
+                value = getattr(settings_object, prop)
+                yield prop, value
 
-
-def refresh_settings():
-    schema = Settings.schema()
-
-    def settings_properties_defaults_generator():
-        for prop in schema["properties"].keys():
-            yield prop, schema["properties"][prop]["default"]
-
-    write_settings_files(
-        "\n".join(
-            f"{prop.upper()}={value}"
-            for prop, value in settings_properties_defaults_generator()
-        ),
-        filter(
-            lambda filepath: filepath.suffix != ".dev",
-            Settings.Config.env_file,
-        ),
-    )
+        env_file.write_text(
+            "\n".join(
+                f"{prop.upper()}={value}"
+                for prop, value in settings_properties_values_generator()
+            ),
+            encoding=ENCODING,
+        )
 
 
 if __name__ == "__main__":
