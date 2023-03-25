@@ -21,6 +21,10 @@ def dev():
 
 @app.command()
 def update():
+    os.system(
+        "poetry export -f requirements.txt --output requirements.txt --without-hashes"
+    )
+
     update_settings()
 
 
