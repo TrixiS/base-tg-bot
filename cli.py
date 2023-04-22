@@ -32,16 +32,16 @@ def update():
 def router(name: str, file: bool = False, jump: bool = False):
     FILE_ROUTER_CODE = """from aiogram import F, types
 from aiogram.fsm.context import FSMContext
+from prisma.models import BotUser
 
 from .. import markups
 from ..bot import bot
 from ..phrases import phrases
-from ..database.models import BotUser
 from ..utils.router import Router
 from . import root_router
 
 router = Router()
-root_router.include_router(router)
+root_router.include_router(router
 """
 
     DIR_ROUTER_CODE = """from ...utils.router import Router
@@ -75,11 +75,11 @@ root_router.include_router(router)
 def handler(router: str, name: str, jump: bool = False):
     HANDLER_CODE = """from aiogram import F, types
 from aiogram.fsm.context import FSMContext
+from prisma.models import BotUser
 
 from ... import markups
 from ...bot import bot
 from ...phrases import phrases
-from ...database.models import BotUser
 from . import router
 """
 

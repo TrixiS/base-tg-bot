@@ -1,1 +1,1 @@
-python3 -m pip install -U wheel -r requirements.txt --quiet && python3 cli.py update && python3 -m bot
+python3 -m pip install -U wheel -r requirements.txt --quiet && python3 -m prisma db push && python3 -m bot

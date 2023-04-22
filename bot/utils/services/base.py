@@ -1,7 +1,7 @@
-from abc import ABC
+from typing import Protocol
 
 
-class Service(ABC):
+class Service(Protocol):
     async def setup(self):
         ...
 
