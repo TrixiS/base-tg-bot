@@ -10,7 +10,7 @@ generator client {
 }
 
 model BotUser {
-    id        Int       @id @unique
+    id        BigInt    @id @unique
     username  String?
     full_name String
     joined_at DateTime  @default(now())
