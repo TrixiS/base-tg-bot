@@ -8,7 +8,7 @@ from ..utils.services.base import Service
 
 class ScheduleService(Service, aioschedule.Scheduler):
     def __init__(self, *, pending_jobs_interval: int = 60) -> None:
-        super().__init__()
+        aioschedule.Scheduler.__init__(self)
         self.pending_jobs_interval = pending_jobs_interval
         self.pending_jobs_task: Optional[asyncio.Task] = None
 
