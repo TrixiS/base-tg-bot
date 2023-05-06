@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 import typer
 
@@ -16,7 +16,7 @@ def dev():
     for path in generate_filepaths(Settings.Config.env_file):
         path.touch(exist_ok=True)
 
-    update_settings()
+    update_env_files()
 
 
 @app.command()
@@ -25,7 +25,7 @@ def update():
         "poetry export -f requirements.txt --output requirements.txt --without-hashes"
     )
 
-    update_settings()
+    update_env_files()
 
 
 @app.command()
@@ -108,21 +108,26 @@ def generate_filepaths(filenames: Iterable[Path]):
     yield from map(lambda filename: ROOT_PATH / filename, filenames)
 
 
-def update_settings():
+def _settings_properties_values_generator(
+    schema: dict[str, Any], settings_object: Settings
+):
+    for prop in schema["properties"].keys():
+        value = getattr(settings_object, prop)
+        yield prop, value
+
+
+def update_env_files():
     schema = Settings.schema()
 
     for env_file in Settings.Config.env_file:
         settings_object = Settings(_env_file=env_file)  # type: ignore
 
-        def settings_properties_values_generator():
-            for prop in schema["properties"].keys():
-                value = getattr(settings_object, prop)
-                yield prop, value
-
         env_file.write_text(
             "\n".join(
                 f"{prop.upper()}={value}"
-                for prop, value in settings_properties_values_generator()
+                for prop, value in _settings_properties_values_generator(
+                    schema, settings_object
+                )
             ),
             encoding=ENCODING,
         )
