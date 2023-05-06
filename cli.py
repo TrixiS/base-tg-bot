@@ -41,7 +41,7 @@ from ..utils.router import Router
 from . import root_router
 
 router = Router()
-root_router.include_router(router
+root_router.include_router(router)
 """
 
     DIR_ROUTER_CODE = """from ...utils.router import Router
