@@ -12,7 +12,7 @@ pydantic = {extras = ["dotenv"], version = "^1.10.7"}
 aioschedule = "0.5.2"
 aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "cf269e15f4a098b051f97bc68bb2e710d3d61d8a"}
 typer = "0.7.0"
-aiogram3-form = "0.3.1"
+aiogram3-form = "0.3.3"
 prisma = "^0.8.2"
 
 [build-system]

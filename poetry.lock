@@ -46,14 +46,14 @@ resolved_reference = "cf269e15f4a098b051f97bc68bb2e710d3d61d8a"
 
 [[package]]
 name = "aiogram3-form"
-version = "0.3.1"
+version = "0.3.3"
 description = "A library to create forms in aiogram3"
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "aiogram3_form-0.3.1-py3-none-any.whl", hash = "sha256:b1df884f2ed78aef2d9d7a3973a0afc6e3fd9e3b2b49ec6dc5af5036ecba1232"},
-    {file = "aiogram3_form-0.3.1.tar.gz", hash = "sha256:6dbc79fa8616d27ef9ae33fde8341cc8c081cd1e7506b6077b09cb3b76e56b61"},
+    {file = "aiogram3_form-0.3.3-py3-none-any.whl", hash = "sha256:239b250efce7f91667b2c3dc8d9b539ae80e87a019e18422c5cac60b03709af5"},
+    {file = "aiogram3_form-0.3.3.tar.gz", hash = "sha256:83ea69214406f4591f4a6cad5f6c9a5eec2ec8d63998490b0d10598c0784dac8"},
 ]
 
 [[package]]
@@ -970,4 +970,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5b05258d5fcf1fa67401c287fc51541a15e69660b2641d702c52be1789b881ca"
+content-hash = "b74eb4f54752dd569ba0f2e5dd5322fd799630219b97d0545080aa57977bcbd8"
