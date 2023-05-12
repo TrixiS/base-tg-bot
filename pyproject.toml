@@ -8,9 +8,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = {extras = ["dotenv"], version = "1.10.4"}
+pydantic = {extras = ["dotenv"], version = "^1.10.7"}
 aioschedule = "0.5.2"
-aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "fad45c66aa7833eab8c60d87cb2567c4012de655"}
+aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "cf269e15f4a098b051f97bc68bb2e710d3d61d8a"}
 typer = "0.7.0"
 aiogram3-form = "0.3.1"
 prisma = "^0.8.2"
