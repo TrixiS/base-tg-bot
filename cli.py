@@ -120,6 +120,9 @@ def update_env_files():
     schema = Settings.schema()
 
     for env_file in Settings.Config.env_file:
+        if not env_file.exists():
+            continue
+
         settings_object = Settings(_env_file=env_file)  # type: ignore
 
         env_file.write_text(
