@@ -3,9 +3,9 @@ import logging
 
 from . import routers, state
 from .bot import bot, dispatcher
+from .database import DatabaseService, bot_user_middleware
 from .phrases import phrases
 from .schedule import ScheduleService
-from .utils.database import DatabaseService, bot_user_middleware
 from .utils.paths import ROOT_PATH, ROUTERS_PATH
 from .utils.services.middleware import ServicesMiddleware
 
