@@ -1,7 +1,8 @@
-FROM python:3.10.11-bullseye
+FROM python:3.10.11-alpine3.18
 
 ARG repo
 
+RUN apk add --update --no-cache libc6-compat openssl git npm
 RUN git clone ${repo} ./app
 
 WORKDIR ./app
