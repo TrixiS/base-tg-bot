@@ -1,11 +1,8 @@
 FROM python:3.10.11-alpine3.18
 
-ARG repo
+COPY . .
 
 RUN apk add --update --no-cache git
-RUN git clone ${repo} ./app
-
-WORKDIR ./app
 
 RUN pip3 install -r requirements.txt
 
