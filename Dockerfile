@@ -1,6 +1,8 @@
 FROM python:3.10.11-alpine3.18
 
-COPY . .
+COPY . ./app
+
+WORKDIR ./app
 
 RUN apk add --update --no-cache git
 
