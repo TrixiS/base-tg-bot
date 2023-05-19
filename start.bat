@@ -1,1 +1,1 @@
-(python -m pip install -U wheel -r requirements.txt --quiet && python -m prisma db push && python -m bot) || pause
+(python -m pip install -U wheel -r requirements.txt --quiet && python -m bot) || pause
