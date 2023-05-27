@@ -6,7 +6,8 @@ from .bot import bot, dispatcher
 from .database import DatabaseService, bot_user_middleware
 from .phrases import phrases
 from .schedule import ScheduleService
-from .utils.paths import ROOT_PATH, ROUTERS_PATH
+from .utils import loader
+from .utils.paths import ROOT_PATH
 from .utils.services.middleware import ServicesMiddleware
 
 
@@ -40,29 +41,6 @@ async def on_shutdown():
     await dispatcher.services.dispose_all()
 
 
-def import_routers():
-    for router_path in ROUTERS_PATH.glob("*"):
-        if router_path.stem.startswith("__") and router_path.stem.endswith("__"):
-            continue
-
-        if router_path.is_file():
-            __import__(f"bot.routers.{router_path.stem}")
-            continue
-
-        sorted_handler_file_paths = sorted(
-            router_path.glob("*.*"), key=lambda p: p.stem
-        )
-
-        for handler_file_path in sorted_handler_file_paths:
-            if not handler_file_path.is_file() or (
-                handler_file_path.stem.startswith("__")
-                and handler_file_path.stem.endswith("__")
-            ):
-                continue
-
-            __import__(f"bot.routers.{router_path.stem}.{handler_file_path.stem}")
-
-
 async def main():
     log_filename = str((ROOT_PATH / "logs.log").resolve())
 
@@ -75,7 +53,7 @@ async def main():
     setup_middleware()
     await setup_services()
 
-    import_routers()
+    loader.import_routers()
     dispatcher.include_router(routers.root_router)
 
     used_update_types = dispatcher.resolve_used_update_types()
