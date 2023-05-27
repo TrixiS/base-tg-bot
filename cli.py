@@ -28,7 +28,8 @@ def update():
     update_env_files()
 
 
-@app.command()
+@app.command("r")
+@app.command("router")
 def router(name: str, file: bool = False, jump: bool = False):
     FILE_ROUTER_CODE = """from aiogram import F, types
 from aiogram.fsm.context import FSMContext
@@ -71,7 +72,8 @@ root_router.include_router(router)
         jump_to_file(init_filepath)
 
 
-@app.command()
+@app.command("h")
+@app.command("handler")
 def handler(router: str, name: str, jump: bool = False):
     HANDLER_CODE = """from aiogram import F, types
 from aiogram.fsm.context import FSMContext
