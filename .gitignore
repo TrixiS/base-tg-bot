@@ -3,6 +3,7 @@ _*dev*
 *.sqlite3*
 bot/routers/user/form.py
 .env.dev
+poetry.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
