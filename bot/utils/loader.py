@@ -51,7 +51,5 @@ def __get_sorted_handler_paths(router_path: Path):
 def __import_handlers(router_path: Path):
     handler_paths = __get_sorted_handler_paths(router_path)
 
-    for handler_file_path in handler_paths:
-        importlib.import_module(
-            f"bot.routers.{router_path.stem}.{handler_file_path.stem}"
-        )
+    for handler_filepath in handler_paths:
+        importlib.import_module(__get_handler_import_path(handler_filepath))
