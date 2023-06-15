@@ -9,6 +9,6 @@ from . import router
 
 
 @router.message(CommandStart())
-async def start_handler(message: types.Message, state: FSMContext):
+async def start_command_handler(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(phrases.start_message_text)
