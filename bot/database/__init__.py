@@ -33,12 +33,23 @@ async def bot_user_middleware(
     data: dict[str, Any],
 ) -> Any:
     if event.from_user is None:
-        return
+        raise TypeError(f"{event.__class__.__name__}.from_user is None")
 
-    bot_user, _ = await BotUser.update_or_create(
-        dict(username=event.from_user.username, full_name=event.from_user.full_name),
-        id=event.from_user.id,
-    )
+    bot_user = await BotUser.get_or_none(id=event.from_user.id)
+
+    if bot_user is None:
+        bot_user = await BotUser.create(
+            id=event.from_user.id,
+            username=event.from_user.username,
+            full_name=event.from_user.full_name,
+        )
+    elif (
+        event.from_user.username != bot_user.username
+        or event.from_user.full_name != bot_user.full_name
+    ):
+        bot_user.full_name = event.from_user.full_name  # type: ignore
+        bot_user.username = event.from_user.username  # type: ignore
+        await bot_user.save()
 
     data["bot_user"] = bot_user
     return await handler(event, data)
