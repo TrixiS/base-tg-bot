@@ -6,7 +6,7 @@ class BotUser(Model):
     id = fields.BigIntField(pk=True, unique=True)  # telegram user id
     username = fields.TextField(null=True)
     full_name = fields.TextField()
-    joined_at = fields.DatetimeField(auto_now=True)
+    joined_at = fields.DatetimeField(auto_now_add=True)
     left_at = fields.DatetimeField(null=True)
 
     @property
