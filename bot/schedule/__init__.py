@@ -3,7 +3,7 @@ from typing import Optional
 
 import aioschedule
 
-from ..utils.services.base import Service
+from ..utils.services import Service
 
 
 class ScheduleService(Service, aioschedule.Scheduler):

@@ -8,26 +8,28 @@ from .phrases import phrases
 from .schedule import ScheduleService
 from .utils import loader
 from .utils.paths import ROOT_PATH
-from .utils.services.middleware import ServicesMiddleware
+from .utils.services import ServiceMiddleware
 
 
 async def setup_services():
     schedule_service = ScheduleService()
 
-    await dispatcher.services.register(DatabaseService(), schedule_service).setup_all()
+    await ServiceMiddleware.manager.register(
+        DatabaseService(), schedule_service
+    ).setup_all()
 
 
 def setup_middleware():
     dispatcher.message.middleware.register(state.state_data_middleware)
     dispatcher.callback_query.middleware.register(state.state_data_middleware)
 
-    dispatcher.message.middleware.register(bot_user_middleware)  # type: ignore
-    dispatcher.callback_query.middleware.register(bot_user_middleware)  # type: ignore
-    dispatcher.my_chat_member.middleware.register(bot_user_middleware)  # type: ignore
+    dispatcher.message.middleware.register(bot_user_middleware)
+    dispatcher.callback_query.middleware.register(bot_user_middleware)
+    dispatcher.my_chat_member.middleware.register(bot_user_middleware)
 
-    services_di_middleware = ServicesMiddleware(dispatcher)
-    dispatcher.message.middleware.register(services_di_middleware)
-    dispatcher.callback_query.middleware.register(services_di_middleware)
+    services_middleware = ServiceMiddleware()
+    dispatcher.message.middleware.register(services_middleware)
+    dispatcher.callback_query.middleware.register(services_middleware)
 
 
 @dispatcher.startup()
@@ -38,7 +40,7 @@ async def on_startup():
 
 @dispatcher.shutdown()
 async def on_shutdown():
-    await dispatcher.services.dispose_all()
+    await ServiceMiddleware.manager.dispose_all()
 
 
 async def main():

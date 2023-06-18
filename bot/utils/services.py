@@ -1,10 +1,11 @@
 import asyncio
 import re
+from typing import Any, Awaitable, Callable, Dict, Protocol
 
-from .base import Service
+from aiogram import BaseMiddleware, types
 
 
-def snake_case(s: str):
+def _to_snake_case(s: str):
     return "_".join(
         re.sub(
             "([A-Z][a-z]+)", r" \1", re.sub("([A-Z]+)", r" \1", s.replace("-", " "))
@@ -12,12 +13,20 @@ def snake_case(s: str):
     ).lower()
 
 
+class Service(Protocol):
+    async def setup(self):
+        ...
+
+    async def dispose(self):
+        ...
+
+
 class ServiceManager:
     def __init__(self):
         self._services: dict[str, Service] = {}
 
     def _register(self, service: Service):
-        service_class_snake_name = snake_case(service.__class__.__name__)
+        service_class_snake_name = _to_snake_case(service.__class__.__name__)
         self._services[service_class_snake_name] = service
         return self
 
@@ -28,7 +37,7 @@ class ServiceManager:
         return self
 
     def unregister(self, service: Service):
-        service_class_snake_name = snake_case(service.__class__.__name__)
+        service_class_snake_name = _to_snake_case(service.__class__.__name__)
         del self._services[service_class_snake_name]
 
     async def setup_all(self):
@@ -47,3 +56,16 @@ class ServiceManager:
         )
 
         await asyncio.gather(*service_dispose_coros)
+
+
+class ServiceMiddleware(BaseMiddleware):
+    manager = ServiceManager()
+
+    async def __call__(
+        self,
+        handler: Callable[[types.TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: types.TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        data.update(self.manager._services)
+        return await handler(event, data)

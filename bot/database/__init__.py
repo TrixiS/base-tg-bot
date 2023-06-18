@@ -1,11 +1,11 @@
 from typing import Any, Awaitable, Callable
 
+from aiogram import types
 from tortoise import Tortoise
 
 from ..database.models import BotUser
 from ..settings import settings
-from ..utils.protocols import TelegramUserEvent
-from ..utils.services.base import Service
+from ..utils.services import Service
 
 TORTOISE_ORM = {
     "connections": {"default": settings.database_uri},
@@ -28,27 +28,29 @@ class DatabaseService(Service):
 
 
 async def bot_user_middleware(
-    handler: Callable[[TelegramUserEvent, dict[str, Any]], Awaitable[Any]],
-    event: TelegramUserEvent,
+    handler: Callable[[types.TelegramObject, dict[str, Any]], Awaitable[Any]],
+    event: types.TelegramObject,
     data: dict[str, Any],
 ) -> Any:
-    if event.from_user is None:
-        raise TypeError(f"{event.__class__.__name__}.from_user is None")
+    from_user: types.User | None = getattr(event, "from_user", None)
 
-    bot_user = await BotUser.get_or_none(id=event.from_user.id)
+    if from_user is None:
+        raise TypeError(f"{event.__class__.__name__} has no 'from_user' attribute")
+
+    bot_user = await BotUser.get_or_none(id=from_user.id)
 
     if bot_user is None:
         bot_user = await BotUser.create(
-            id=event.from_user.id,
-            username=event.from_user.username,
-            full_name=event.from_user.full_name,
+            id=from_user.id,
+            username=from_user.username,
+            full_name=from_user.full_name,
         )
     elif (
-        event.from_user.username != bot_user.username
-        or event.from_user.full_name != bot_user.full_name
+        from_user.username != bot_user.username
+        or from_user.full_name != bot_user.full_name
     ):
-        bot_user.full_name = event.from_user.full_name  # type: ignore
-        bot_user.username = event.from_user.username  # type: ignore
+        bot_user.full_name = from_user.full_name  # type: ignore
+        bot_user.username = from_user.username  # type: ignore
         await bot_user.save()
 
     data["bot_user"] = bot_user
