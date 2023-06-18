@@ -5,7 +5,7 @@ from typing import Any, Iterable
 import typer
 
 from bot import ENCODING
-from bot.settings import Settings
+from bot.config import Config
 from bot.utils.paths import ROOT_PATH, ROUTERS_PATH
 
 app = typer.Typer()
@@ -13,7 +13,7 @@ app = typer.Typer()
 
 @app.command()
 def dev():
-    for path in generate_filepaths(Settings.Config.env_file):
+    for path in generate_filepaths(Config.Config.env_file):
         path.touch(exist_ok=True)
 
     update_env_files()
@@ -35,7 +35,7 @@ def router(name: str, file: bool = False, jump: bool = False):
 from aiogram.fsm.context import FSMContext
 
 from .. import markups
-from ..bot import bot
+from ..core import bot
 from ..database.models import BotUser
 from ..phrases import phrases
 from ..utils.router import Router
@@ -79,7 +79,7 @@ def handler(router: str, name: str, jump: bool = False):
 from aiogram.fsm.context import FSMContext
 
 from ... import markups
-from ...bot import bot
+from ...core import bot
 from ...database.models import BotUser
 from ...phrases import phrases
 from . import router
@@ -111,7 +111,7 @@ def generate_filepaths(filenames: Iterable[Path]):
 
 
 def _settings_properties_values_generator(
-    schema: dict[str, Any], settings_object: Settings
+    schema: dict[str, Any], settings_object: Config
 ):
     for prop in schema["properties"].keys():
         value = getattr(settings_object, prop)
@@ -119,13 +119,13 @@ def _settings_properties_values_generator(
 
 
 def update_env_files():
-    schema = Settings.schema()
+    schema = Config.schema()
 
-    for env_file in Settings.Config.env_file:
+    for env_file in Config.Config.env_file:
         if not env_file.exists():
             continue
 
-        settings_object = Settings(_env_file=env_file)  # type: ignore
+        settings_object = Config(_env_file=env_file)  # type: ignore
 
         env_file.write_text(
             "\n".join(

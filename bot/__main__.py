@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from . import routers, state
-from .bot import bot, dispatcher
+from .core import bot, dispatcher
 from .database import DatabaseService, bot_user_middleware
 from .phrases import phrases
 from .schedule import ScheduleService

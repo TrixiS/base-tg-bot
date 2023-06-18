@@ -1,10 +1,10 @@
 from aiogram import types
 
-from ..settings import settings
+from ..config import config
 
 
 def is_admin(user_id: int):
-    return settings.admin_user_id == user_id
+    return config.admin_user_id == user_id
 
 
 async def admin_filter(telegram_object: types.TelegramObject):

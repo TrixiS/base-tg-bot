@@ -3,12 +3,12 @@ from typing import Any, Awaitable, Callable
 from aiogram import types
 from tortoise import Tortoise
 
+from ..config import config
 from ..database.models import BotUser
-from ..settings import settings
 from ..utils.services import Service
 
 TORTOISE_ORM = {
-    "connections": {"default": settings.database_uri},
+    "connections": {"default": config.database_uri},
     "apps": {
         "models": {
             "models": ["bot.database.models", "aerich.models"],

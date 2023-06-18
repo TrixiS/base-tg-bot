@@ -4,7 +4,7 @@ from . import ENCODING
 from .utils.paths import ROOT_PATH
 
 
-class Settings(BaseSettings):
+class Config(BaseSettings):
     bot_token: str = "API токен бота из https://t.me/BotFather"
     admin_user_id: int | str = "ID администратора бота из https://t.me/userinfobot"
     database_uri: str = "sqlite://database.sqlite3"
@@ -14,4 +14,4 @@ class Settings(BaseSettings):
         env_file_encoding = ENCODING
 
 
-settings = Settings()
+config = Config()

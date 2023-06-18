@@ -3,7 +3,7 @@ from aiogram.filters.command import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from ... import markups
-from ...bot import bot
+from ...core import bot
 from ...phrases import phrases
 from . import router
 
