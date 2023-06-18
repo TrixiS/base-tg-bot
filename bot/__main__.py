@@ -49,7 +49,7 @@ async def main():
     logging.basicConfig(
         filename=log_filename,
         level=logging.ERROR,
-        format=r"%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s",
+        format=r"%(asctime)s %(levelname)s %(message)s",
     )
 
     setup_middleware()
