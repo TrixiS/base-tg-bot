@@ -5,19 +5,21 @@ from typing import Any, Awaitable, Callable, Dict, Protocol
 from aiogram import BaseMiddleware, types
 
 
-def _to_snake_case(s: str):
+def _to_snake_case(string: str) -> str:
     return "_".join(
         re.sub(
-            "([A-Z][a-z]+)", r" \1", re.sub("([A-Z]+)", r" \1", s.replace("-", " "))
+            "([A-Z][a-z]+)",
+            r" \1",
+            re.sub("([A-Z]+)", r" \1", string.replace("-", " ")),
         ).split()
     ).lower()
 
 
 class Service(Protocol):
-    async def setup(self):
+    async def setup(self) -> Any:
         ...
 
-    async def dispose(self):
+    async def dispose(self) -> Any:
         ...
 
 
