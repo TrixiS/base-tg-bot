@@ -15,6 +15,8 @@ TORTOISE_ORM = {
             "default_connection": "default",
         },
     },
+    "use_tz": True,
+    "timezone": "UTC",
 }
 
 
