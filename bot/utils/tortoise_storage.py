@@ -1,6 +1,6 @@
 from typing import Any
 
-from aiogram3_form.state import State
+from aiogram.fsm.state import State
 from aiogram.fsm.storage.base import BaseStorage, StateType, StorageKey
 
 from ..database.models import StateBucket
