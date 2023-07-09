@@ -1,7 +1,7 @@
 from typing import Any, Awaitable, Callable
 
 from aiogram import types
-from tortoise import Tortoise
+from tortoise import Tortoise, transactions
 
 from ..config import config
 from ..database.models import BotUser
@@ -39,21 +39,23 @@ async def bot_user_middleware(
     if from_user is None:
         raise TypeError(f"{event.__class__.__name__} has no 'from_user' attribute")
 
-    bot_user = await BotUser.get_or_none(id=from_user.id)
+    async with transactions.in_transaction() as db:
+        bot_user = await BotUser.get_or_none(id=from_user.id, using_db=db)
 
-    if bot_user is None:
-        bot_user = await BotUser.create(
-            id=from_user.id,
-            username=from_user.username,
-            full_name=from_user.full_name,
-        )
-    elif (
-        from_user.username != bot_user.username
-        or from_user.full_name != bot_user.full_name
-    ):
-        bot_user.full_name = from_user.full_name  # type: ignore
-        bot_user.username = from_user.username  # type: ignore
-        await bot_user.save()
+        if bot_user is None:
+            bot_user = await BotUser.create(
+                id=from_user.id,
+                username=from_user.username,
+                full_name=from_user.full_name,
+                using_db=db,
+            )
+        elif (
+            from_user.username != bot_user.username
+            or from_user.full_name != bot_user.full_name
+        ):
+            bot_user.full_name = from_user.full_name  # type: ignore
+            bot_user.username = from_user.username  # type: ignore
+            await bot_user.save(using_db=db)
 
     data["bot_user"] = bot_user
     return await handler(event, data)
