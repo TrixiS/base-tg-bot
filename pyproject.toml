@@ -11,7 +11,7 @@ python = "^3.10"
 pydantic = {extras = ["dotenv"], version = "^1.10.7"}
 aioschedule = "0.5.2"
 aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "cf269e15f4a098b051f97bc68bb2e710d3d61d8a"}
-aiogram3-form = "0.5.1"
+aiogram3-form = "0.6.1"
 tortoise-orm = "^0.19.3"
 aerich = "^0.7.1"
 
