@@ -5,7 +5,7 @@ from typing import Any, Iterable
 import typer
 
 from bot import ENCODING
-from bot.config import Config
+from bot.config import DEV_ENV_FILEPATH, PROD_ENV_FILEPATH, Config
 from bot.utils.paths import ROOT_PATH, ROUTERS_PATH
 
 app = typer.Typer()
@@ -13,9 +13,7 @@ app = typer.Typer()
 
 @app.command()
 def dev():
-    for path in generate_filepaths(Config.Config.env_file):
-        path.touch(exist_ok=True)
-
+    DEV_ENV_FILEPATH.touch(exist_ok=True)
     update_env_files()
 
 
@@ -111,31 +109,30 @@ def generate_filepaths(filenames: Iterable[Path]):
 
 
 def _settings_properties_values_generator(
-    schema: dict[str, Any], settings_object: Config
+    settings_object: Config, field_names: Iterable[str]
 ):
-    for prop in schema["properties"].keys():
-        value = getattr(settings_object, prop)
-        yield prop, value
+    for field_name in field_names:
+        value = getattr(settings_object, field_name)
+        yield field_name, value
+
+
+def update_env_file(filepath: Path):
+    settings_object = Config.from_file(filepath)
+
+    filepath.write_text(
+        "\n".join(
+            f"{field_name.upper()}={field_value}"
+            for field_name, field_value in _settings_properties_values_generator(
+                settings_object, settings_object.model_fields.keys()
+            )
+        ),
+        encoding=ENCODING,
+    )
 
 
 def update_env_files():
-    schema = Config.schema()
-
-    for env_file in Config.Config.env_file:
-        if not env_file.exists():
-            continue
-
-        settings_object = Config(_env_file=env_file)  # type: ignore
-
-        env_file.write_text(
-            "\n".join(
-                f"{prop.upper()}={value}"
-                for prop, value in _settings_properties_values_generator(
-                    schema, settings_object
-                )
-            ),
-            encoding=ENCODING,
-        )
+    update_env_file(PROD_ENV_FILEPATH)
+    update_env_file(DEV_ENV_FILEPATH)
 
 
 if __name__ == "__main__":
