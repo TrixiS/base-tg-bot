@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Iterable
 
 import typer
 
@@ -117,7 +117,9 @@ def _settings_properties_values_generator(
 
 
 def update_env_file(filepath: Path):
-    settings_object = Config.from_file(filepath)
+    settings_object = Config(
+        _env_file=str(filepath.absolute()), _env_file_encoding=ENCODING  # type: ignore
+    )
 
     filepath.write_text(
         "\n".join(
