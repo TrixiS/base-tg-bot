@@ -13,7 +13,7 @@ current_env_filepath = (
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=str(current_env_filepath.absolute()),
+        env_file=str(current_env_filepath.resolve().absolute()),
         env_file_encoding=ENCODING,
         extra="allow",
     )
