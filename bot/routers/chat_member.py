@@ -2,6 +2,7 @@
 
 from aiogram import F, enums, types
 from aiogram.filters import IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
+from aiogram.filters.magic_data import MagicData
 
 from ..database.models import BotChat, BotUser
 from ..utils.router import Router
@@ -14,6 +15,7 @@ root_router.include_router(router)
 @router.my_chat_member(
     F.chat.type == enums.ChatType.PRIVATE,
     ChatMemberUpdatedFilter(IS_NOT_MEMBER >> IS_MEMBER),
+    MagicData(~F.is_new_bot_user),
 )
 async def joined_user_handler(_: types.ChatMemberUpdated, bot_user: BotUser):
     bot_user.joined_at = datetime.datetime.now(datetime.timezone.utc)

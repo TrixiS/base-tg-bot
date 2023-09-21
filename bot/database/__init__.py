@@ -39,10 +39,14 @@ async def bot_user_middleware(
     if from_user is None:
         raise TypeError(f"{event.__class__.__name__} has no 'from_user' attribute")
 
+    is_new_bot_user = False
+
     async with transactions.in_transaction() as db:
         bot_user = await BotUser.get_or_none(id=from_user.id, using_db=db)
 
         if bot_user is None:
+            is_new_bot_user = True
+
             bot_user = await BotUser.create(
                 id=from_user.id,
                 username=from_user.username,
@@ -58,4 +62,6 @@ async def bot_user_middleware(
             await bot_user.save(using_db=db)
 
     data["bot_user"] = bot_user
+    data["is_new_bot_user"] = is_new_bot_user
+
     return await handler(event, data)

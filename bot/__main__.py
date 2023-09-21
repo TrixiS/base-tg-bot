@@ -25,7 +25,7 @@ def setup_middleware():
 
     dispatcher.message.middleware.register(bot_user_middleware)
     dispatcher.callback_query.middleware.register(bot_user_middleware)
-    dispatcher.my_chat_member.middleware.register(bot_user_middleware)
+    dispatcher.my_chat_member.outer_middleware.register(bot_user_middleware)
 
     services_middleware = ServiceMiddleware()
     dispatcher.message.middleware.register(services_middleware)
