@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from . import routers, state
@@ -6,7 +5,7 @@ from .core import bot, dispatcher
 from .database import DatabaseService, bot_user_middleware
 from .phrases import phrases
 from .schedule import ScheduleService
-from .utils import loader
+from .utils import loader, startup
 from .utils.paths import ROOT_PATH
 from .utils.services import ServiceMiddleware
 
@@ -62,4 +61,4 @@ async def main():
     await dispatcher.start_polling(bot, allowed_updates=used_update_types)
 
 
-asyncio.run(main())
+startup.run(main())
