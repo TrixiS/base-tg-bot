@@ -14,7 +14,6 @@ aiogram3-form = "0.6.3"
 tortoise-orm = "^0.20.0"
 aerich = "^0.7.2"
 pydantic-settings = "^2.0.3"
-# uvloop = {version = "^0.17.0", platform = "unix"}
 uvloop = [{version = "^0.17.0", platform = "darwin"}, {version = "^0.17.0", platform = "unix"}]
 
 [tool.poetry.group.dev.dependencies]
