@@ -3,7 +3,7 @@ from tortoise.models import Model
 
 
 class BotUser(Model):
-    id = fields.BigIntField(pk=True, unique=True)  # telegram user id
+    id = fields.BigIntField(pk=True, unique=True, generated=False)  # telegram user id
     username = fields.TextField(null=True)
     full_name = fields.TextField()
     joined_at = fields.DatetimeField(auto_now_add=True)
@@ -25,7 +25,9 @@ class BotUser(Model):
 
 
 class BotChat(Model):
-    id = fields.BigIntField(pk=True, unique=True)  # telegram chat id signed
+    id = fields.BigIntField(
+        pk=True, unique=True, generated=False
+    )  # telegram chat id signed
     title = fields.TextField()
     username = fields.TextField(null=True)
     type = fields.TextField()
