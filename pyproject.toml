@@ -9,12 +9,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 aioschedule = "^0.5.2"
-aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "2ecf9cefd7011621398db4ec48cf894273f0c9d6"}
 aiogram3-form = "0.6.3"
 tortoise-orm = "^0.20.0"
 aerich = "^0.7.2"
 pydantic-settings = "^2.0.3"
 uvloop = [{version = "^0.17.0", markers = 'sys_platform != "win32"'}]
+aiogram = "3.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
