@@ -43,10 +43,10 @@ async def on_shutdown():
 
 
 async def main():
-    log_filepath = str((ROOT_PATH / "logs.log").resolve())
+    log_filename = str((ROOT_PATH / "logs.log").resolve())
 
     logging.basicConfig(
-        filename=log_filepath,
+        filename=log_filename,
         level=logging.ERROR,
         format=r"%(asctime)s %(levelname)s %(message)s",
     )
