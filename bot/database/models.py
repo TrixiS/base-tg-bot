@@ -31,12 +31,3 @@ class BotChat(Model):
     title = fields.TextField()
     username = fields.TextField(null=True)
     type = fields.TextField()
-
-
-class StateBucket(Model):
-    id = fields.IntField(pk=True, unique=True)
-    bot_id = fields.BigIntField()
-    chat_id = fields.BigIntField()
-    user_id = fields.BigIntField()
-    state = fields.TextField(null=True)
-    data = fields.JSONField(default={})
