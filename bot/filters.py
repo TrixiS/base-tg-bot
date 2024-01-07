@@ -1,6 +1,6 @@
 from aiogram import types
 
-from ..config import config
+from .config import config
 
 
 def is_admin(user_id: int):
