@@ -7,7 +7,7 @@ from ..config import config
 from ..database.models import BotUser
 from ..utils.services import Service
 
-TORTOISE_ORM = {
+TORTOISE_ORM_CONFIG = {
     "connections": {"default": config.database_uri},
     "apps": {
         "models": {
@@ -22,7 +22,7 @@ TORTOISE_ORM = {
 
 class DatabaseService(Service):
     async def setup(self):
-        await Tortoise.init(TORTOISE_ORM)
+        await Tortoise.init(TORTOISE_ORM_CONFIG)
         await Tortoise.generate_schemas()
 
     async def dispose(self):
@@ -50,14 +50,16 @@ async def bot_user_middleware(
             bot_user = await BotUser.create(
                 id=from_user.id,
                 username=from_user.username,
-                full_name=from_user.full_name,
+                first_name=from_user.first_name,
+                last_name=from_user.last_name,
                 using_db=db,
             )
         elif (
             from_user.username != bot_user.username
             or from_user.full_name != bot_user.full_name
         ):
-            bot_user.full_name = from_user.full_name  # type: ignore
+            bot_user.first_name = from_user.first_name
+            bot_user.last_name = from_user.last_name  # type: ignore
             bot_user.username = from_user.username  # type: ignore
             await bot_user.save(using_db=db)
 
