@@ -1,7 +1,10 @@
 import importlib
+import logging
 from pathlib import Path
 
 from .paths import ROUTERS_PATH
+
+_LOGGER = logging.getLogger("loader")
 
 ROUTER_PRIORITIES = (
     "admin",
@@ -13,18 +16,27 @@ def import_routers():
     router_paths = __get_sorted_router_paths()
 
     for router_path in router_paths:
+        router_import_path = __get_router_import_path(router_path)
+
         if router_path.is_file():
-            importlib.import_module(__get_router_import_path(router_path))
-        else:
-            __import_handlers(router_path)
+            _LOGGER.info(f"Importing router {router_import_path}")
+            importlib.import_module(router_import_path)
+            continue
+
+        for handler_filepath in __get_sorted_handler_paths(router_path):
+            handler_import_path = __get_handler_import_path(
+                router_import_path, handler_filepath
+            )
+
+            _LOGGER.info(f"Importing handler {handler_import_path}")
+            importlib.import_module(handler_import_path)
 
 
 def __get_router_import_path(router_path: Path):
     return f"bot.routers.{router_path.stem}"
 
 
-def __get_handler_import_path(handler_path: Path):
-    router_import_path = __get_router_import_path(handler_path.parent)
+def __get_handler_import_path(router_import_path: str, handler_path: Path):
     return f"{router_import_path}.{handler_path.stem}"
 
 
@@ -46,10 +58,3 @@ def __get_sorted_handler_paths(router_path: Path):
     )
 
     return sorted(handler_paths, key=lambda p: p.stem)
-
-
-def __import_handlers(router_path: Path):
-    handler_paths = __get_sorted_handler_paths(router_path)
-
-    for handler_filepath in handler_paths:
-        importlib.import_module(__get_handler_import_path(handler_filepath))
