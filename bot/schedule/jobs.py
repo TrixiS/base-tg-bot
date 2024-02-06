@@ -1,1 +1,1 @@
-from ..core import bot
+from ..client import bot

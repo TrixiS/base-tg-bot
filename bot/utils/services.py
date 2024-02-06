@@ -16,11 +16,8 @@ def _to_snake_case(string: str) -> str:
 
 
 class Service(Protocol):
-    async def setup(self) -> Any:
-        ...
-
-    async def dispose(self) -> Any:
-        ...
+    async def setup(self) -> Any: ...
+    async def dispose(self) -> Any: ...
 
 
 class ServiceManager:
@@ -61,7 +58,8 @@ class ServiceManager:
 
 
 class ServiceMiddleware(BaseMiddleware):
-    manager = ServiceManager()
+    def __init__(self) -> None:
+        self.manager = ServiceManager()
 
     async def __call__(
         self,

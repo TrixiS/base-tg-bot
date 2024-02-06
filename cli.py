@@ -33,7 +33,7 @@ def router(name: str, file: bool = False, jump: bool = False):
 from aiogram.fsm.context import FSMContext
 
 from .. import markups
-from ..core import bot
+from ..client import bot
 from ..database.models import BotUser
 from ..phrases import phrases
 from ..utils.router import Router
@@ -77,7 +77,7 @@ def handler(router: str, name: str, jump: bool = False):
 from aiogram.fsm.context import FSMContext
 
 from ... import markups
-from ...core import bot
+from ...client import bot
 from ...database.models import BotUser
 from ...phrases import phrases
 from . import router

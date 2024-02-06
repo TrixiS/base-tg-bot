@@ -1,12 +1,14 @@
 import logging
 
-from . import routers, state
-from .core import bot, dispatcher
-from .database import DatabaseService, bot_user_middleware
+from aiogram import Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+
+from . import database, routers, state
+from .client import bot
 from .schedule import ScheduleService
 from .utils import loader, startup
 from .utils.paths import ROOT_PATH
-from .utils.services import ServiceMiddleware
+from .utils.services import ServiceManager, ServiceMiddleware
 
 LOGS_FILEPATH = str((ROOT_PATH / "logs.log").resolve())
 
@@ -21,41 +23,36 @@ def setup_logging():
     logging.getLogger("aiogram.events").setLevel(logging.ERROR)
 
 
-async def setup_services():
+def setup_services(service_manager: ServiceManager):
     schedule_service = ScheduleService()
 
-    await ServiceMiddleware.manager.register(
-        DatabaseService(), schedule_service
-    ).setup_all()
-
-
-def setup_middleware():
-    dispatcher.message.middleware.register(state.state_data_middleware)
-    dispatcher.callback_query.middleware.register(state.state_data_middleware)
-
-    dispatcher.message.middleware.register(bot_user_middleware)
-    dispatcher.callback_query.middleware.register(bot_user_middleware)
-    dispatcher.my_chat_member.outer_middleware.register(bot_user_middleware)
-
-    services_middleware = ServiceMiddleware()
-    dispatcher.message.middleware.register(services_middleware)
-    dispatcher.callback_query.middleware.register(services_middleware)
-
-
-@dispatcher.startup()
-async def on_startup():
-    await bot.get_me()
-
-
-@dispatcher.shutdown()
-async def on_shutdown():
-    await ServiceMiddleware.manager.dispose_all()
+    service_manager.register(
+        database.DatabaseService(),
+        schedule_service,
+    )
 
 
 async def main():
     setup_logging()
-    setup_middleware()
-    await setup_services()
+
+    dispatcher = Dispatcher(storage=MemoryStorage())
+
+    dispatcher.message.middleware.register(state.state_data_middleware)
+    dispatcher.callback_query.middleware.register(state.state_data_middleware)
+
+    dispatcher.message.middleware.register(database.bot_user_middleware)
+    dispatcher.callback_query.middleware.register(database.bot_user_middleware)
+    dispatcher.my_chat_member.outer_middleware.register(database.bot_user_middleware)
+
+    service_middleware = ServiceMiddleware()
+    dispatcher.message.middleware.register(service_middleware)
+    dispatcher.callback_query.middleware.register(service_middleware)
+
+    setup_services(service_middleware.manager)
+    await service_middleware.manager.setup_all()
+
+    dispatcher.startup.register(bot.get_me)  # so .me would be cached on startup
+    dispatcher.shutdown.register(service_middleware.manager.dispose_all)
 
     loader.import_routers()
     dispatcher.include_router(routers.root_router)
