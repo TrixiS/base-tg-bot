@@ -1,8 +1,9 @@
+# syntax=docker/dockerfile:1
+
 FROM python:3.10.11-alpine3.18
 
-COPY . ./app
-
-WORKDIR ./app
+WORKDIR /app
+COPY . .
 
 RUN apk add --update --no-cache git
 
