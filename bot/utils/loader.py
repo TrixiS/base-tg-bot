@@ -14,9 +14,10 @@ ROUTER_PRIORITIES = (
 
 def import_routers():
     router_paths = __get_sorted_router_paths()
+    package_name = __name__.split(".")[0]
 
     for router_path in router_paths:
-        router_import_path = __get_router_import_path(router_path)
+        router_import_path = __get_router_import_path(package_name, router_path)
 
         if router_path.is_file():
             _LOGGER.info(f"Importing router {router_import_path}")
@@ -32,8 +33,8 @@ def import_routers():
             importlib.import_module(handler_import_path)
 
 
-def __get_router_import_path(router_path: Path):
-    return f"bot.routers.{router_path.stem}"
+def __get_router_import_path(package_name: str, router_path: Path):
+    return f"{package_name}.routers.{router_path.stem}"
 
 
 def __get_handler_import_path(router_import_path: str, handler_path: Path):
