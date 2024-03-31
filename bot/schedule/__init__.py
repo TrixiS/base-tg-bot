@@ -1,27 +1,54 @@
 import asyncio
-from typing import Optional
+import functools
+from dataclasses import dataclass
+from typing import Any, Callable, Coroutine
 
-import aioschedule
-
+from ..utils import dateutils
 from ..utils.services import Service
 
+_JobFunc = Callable[..., Coroutine[Any, Any, Any]]
 
-class ScheduleService(Service, aioschedule.Scheduler):
-    def __init__(self, *, pending_jobs_interval: int = 60) -> None:
-        aioschedule.Scheduler.__init__(self)
-        self.pending_jobs_interval = pending_jobs_interval
-        self.pending_jobs_task: Optional[asyncio.Task] = None
 
-    async def _run_pending_jobs(self):
+@dataclass(frozen=True)
+class _Job:
+    func: _JobFunc
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
+    interval_seconds: float
+
+    async def run(self):
         while True:
-            await asyncio.sleep(self.pending_jobs_interval)
-            await self.run_pending()
+            await asyncio.sleep(self.interval_seconds)
+
+            partial_func = functools.partial(
+                self.func, *self.args, **self.kwargs, now=dateutils.utc_now()
+            )
+
+            asyncio.create_task(partial_func())
+
+
+@dataclass
+class _Schedule:
+    job: _Job
+    task: asyncio.Task | None = None
+
+
+class ScheduleService(Service):
+    def __init__(self):
+        self._schedules: list[_Schedule] = []
 
     async def setup(self):
-        self.pending_jobs_task = asyncio.create_task(self._run_pending_jobs())
+        for schedule in self._schedules:
+            schedule.task = asyncio.create_task(schedule.job.run())
 
     async def dispose(self):
-        if self.pending_jobs_task and not self.pending_jobs_task.done():
-            self.pending_jobs_task.cancel()
+        for schedule in self._schedules:
+            if schedule.task is not None:
+                schedule.task.cancel()
 
-        self.pending_jobs_task = None
+    def schedule(self, func: _JobFunc, *args, interval_seconds: float, **kwargs):
+        self._schedules.append(
+            _Schedule(_Job(func, args, kwargs, interval_seconds=interval_seconds))
+        )
+
+        return self

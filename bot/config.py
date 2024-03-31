@@ -1,7 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from . import ENCODING
 from .utils.paths import ROOT_PATH
+
+ENCODING = "utf-8"
 
 DEV_ENV_FILEPATH = ROOT_PATH / ".env.dev"
 PROD_ENV_FILEPATH = ROOT_PATH / ".env"
@@ -19,7 +20,7 @@ class Config(BaseSettings):
     )
 
     bot_token: str = "API токен бота из https://t.me/BotFather"  # type: ignore
-    admin_user_id: int | str = "ID администратора бота из https://t.me/userinfobot"
+    admin_user_id: int = 0
     database_uri: str = "sqlite://database.sqlite3"
 
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "base-tg-bot"
-version = "1.0.0"
+version = "1.1.0"
 description = ""
 authors = ["TrixiS <oficialmorozov@gmail.com>"]
 license = "MIT"
@@ -8,7 +8,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-aioschedule = "^0.5.2"
 aiogram3-form = "1.0.1"
 tortoise-orm = "^0.20.0"
 aerich = "^0.7.2"

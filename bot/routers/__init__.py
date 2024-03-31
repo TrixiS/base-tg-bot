@@ -1,3 +1,3 @@
-from ..utils.router import Router
+from aiogram import Router
 
 root_router = Router()

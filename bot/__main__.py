@@ -1,11 +1,12 @@
 import logging
+from typing import Any, Awaitable, Callable
 
-from aiogram import Dispatcher
+from aiogram import Dispatcher, types
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from . import database, routers, state
+from . import database, filters, routers, state
 from .client import bot
-from .schedule import ScheduleService
+from .schedule import ScheduleService, jobs
 from .utils import loader, startup
 from .utils.paths import ROOT_PATH
 from .utils.services import ServiceManager, ServiceMiddleware
@@ -16,7 +17,7 @@ LOGS_FILEPATH = str((ROOT_PATH / "logs.log").resolve())
 def setup_logging():
     logging.basicConfig(
         filename=LOGS_FILEPATH,
-        level=logging.INFO,
+        level=logging.ERROR,
         format=r"%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
@@ -32,10 +33,27 @@ def setup_services(service_manager: ServiceManager):
     )
 
 
+def admin_middleware(
+    handler: Callable[[types.TelegramObject, dict[str, Any]], Awaitable[Any]],
+    update: types.TelegramObject,
+    data: dict[str, Any],
+) -> Any:
+    from_user: types.User | None = getattr(update, "from_user", None)
+
+    if from_user is None:
+        raise TypeError(f"{update.__class__.__name__} has no 'from_user' attribute")
+
+    data["is_admin"] = filters.is_admin(from_user.id)
+    return handler(update, data)
+
+
 async def main():
     setup_logging()
 
     dispatcher = Dispatcher(storage=MemoryStorage())
+
+    dispatcher.message.outer_middleware.register(admin_middleware)
+    dispatcher.callback_query.outer_middleware.register(admin_middleware)
 
     dispatcher.message.middleware.register(state.state_data_middleware)
     dispatcher.callback_query.middleware.register(state.state_data_middleware)
@@ -57,8 +75,9 @@ async def main():
     loader.import_routers()
     dispatcher.include_router(routers.root_router)
 
-    used_update_types = dispatcher.resolve_used_update_types()
-    await dispatcher.start_polling(bot, allowed_updates=used_update_types)
+    await dispatcher.start_polling(
+        bot, allowed_updates=dispatcher.resolve_used_update_types()
+    )
 
 
 startup.run(main())

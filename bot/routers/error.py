@@ -1,6 +1,7 @@
 ﻿import logging
 
-from ..utils.router import Router
+from aiogram import Router
+
 from . import root_router
 
 router = Router()

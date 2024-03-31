@@ -4,8 +4,7 @@ from typing import Iterable
 
 import typer
 
-from bot import ENCODING
-from bot.config import DEV_ENV_FILEPATH, PROD_ENV_FILEPATH, Config
+from bot.config import DEV_ENV_FILEPATH, ENCODING, PROD_ENV_FILEPATH, Config
 from bot.utils.paths import ROOT_PATH, ROUTERS_PATH
 
 app = typer.Typer()
@@ -29,21 +28,21 @@ def update():
 @app.command("r")
 @app.command("router")
 def router(name: str, file: bool = False, jump: bool = False):
-    FILE_ROUTER_CODE = """from aiogram import F, types
+    FILE_ROUTER_CODE = """from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 
 from .. import markups
 from ..client import bot
 from ..database.models import BotUser
 from ..phrases import phrases
-from ..utils.router import Router
 from . import root_router
 
 router = Router()
 root_router.include_router(router)
 """
 
-    DIR_ROUTER_CODE = """from ...utils.router import Router
+    DIR_ROUTER_CODE = """from aiogram import Router
+
 from .. import root_router
 
 router = Router()
@@ -121,13 +120,17 @@ def update_env_file(filepath: Path):
         _env_file=str(filepath.absolute()), _env_file_encoding=ENCODING  # type: ignore
     )
 
+    env_file_content = "\n".join(
+        f"{field_name.upper()}={field_value}"
+        for field_name, field_value in _settings_properties_values_generator(
+            settings_object, settings_object.model_fields.keys()
+        )
+    )
+
+    env_file_content += "\n"  # trailing new line
+
     filepath.write_text(
-        "\n".join(
-            f"{field_name.upper()}={field_value}"
-            for field_name, field_value in _settings_properties_values_generator(
-                settings_object, settings_object.model_fields.keys()
-            )
-        ),
+        env_file_content,
         encoding=ENCODING,
     )
 

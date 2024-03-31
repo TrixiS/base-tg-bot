@@ -1,10 +1,9 @@
-﻿from aiogram import F, enums, types
+﻿from aiogram import F, Router, enums, types
 from aiogram.filters import IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
 from aiogram.filters.magic_data import MagicData
 
-from .. import utils
 from ..database.models import BotChat, BotUser
-from ..utils.router import Router
+from ..utils import dateutils
 from . import root_router
 
 router = Router()
@@ -17,7 +16,7 @@ root_router.include_router(router)
     MagicData(~F.is_new_bot_user),
 )
 async def joined_user_handler(_: types.ChatMemberUpdated, bot_user: BotUser):
-    bot_user.joined_at = utils.utc_now()
+    bot_user.joined_at = dateutils.utc_now()
     bot_user.left_at = None  # type: ignore
     await bot_user.save()
 
@@ -27,7 +26,7 @@ async def joined_user_handler(_: types.ChatMemberUpdated, bot_user: BotUser):
     ChatMemberUpdatedFilter(IS_MEMBER >> IS_NOT_MEMBER),
 )
 async def left_user_handler(_: types.ChatMemberUpdated, bot_user: BotUser):
-    bot_user.left_at = utils.utc_now()
+    bot_user.left_at = dateutils.utc_now()
     await bot_user.save()
 
 
