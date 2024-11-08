@@ -13,7 +13,7 @@ tortoise-orm = "^0.20.0"
 aerich = "^0.7.2"
 pydantic-settings = "^2.0.3"
 uvloop = [{ version = "^0.17.0", markers = 'sys_platform != "win32"' }]
-aiogram = "3.8.0"
+aiogram = "3.14.0"
 
 
 [tool.poetry.group.dev.dependencies]
