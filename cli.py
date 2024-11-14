@@ -18,10 +18,7 @@ def dev():
 
 @app.command()
 def update():
-    os.system(
-        "poetry export -f requirements.txt --output requirements.txt --without-hashes"
-    )
-
+    os.system("uv export --no-hashes > requirements.txt")
     update_env_files()
 
 
@@ -117,7 +114,8 @@ def _settings_properties_values_generator(
 
 def update_env_file(filepath: Path):
     settings_object = Config(
-        _env_file=str(filepath.absolute()), _env_file_encoding=ENCODING  # type: ignore
+        _env_file=str(filepath.absolute()),  # type: ignore
+        _env_file_encoding=ENCODING,  # type: ignore
     )
 
     env_file_content = "\n".join(
