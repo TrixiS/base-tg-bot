@@ -11,12 +11,6 @@ app = typer.Typer()
 
 
 @app.command()
-def dev():
-    DEV_ENV_FILEPATH.touch(exist_ok=True)
-    update_env_files()
-
-
-@app.command()
 def update():
     os.system("uv export --no-hashes > requirements.txt")
     update_env_files()
