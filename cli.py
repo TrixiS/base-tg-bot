@@ -1,4 +1,5 @@
 import os
+import threading
 from pathlib import Path
 
 import httpx
@@ -106,26 +107,43 @@ def mod_command_handler(module_name: str):
         rich.print(f"[bold red]Module {module_name} not found[/bold red]")
         return client.close()
 
+    threads: list[threading.Thread] = []
+
     for file in walk_module(repo, module_content_file):
-        filepath = file.path[(len(module_name) + 1) :]  # +1 for /
-        local_filepath = paths.ROOT_PATH / f"bot/{filepath}"
+        thread = threading.Thread(
+            target=write_module_local_file, args=(module_name, file)
+        )
 
-        res = httpx.get(file.download_url)
+        thread.start()
+        threads.append(thread)
 
-        if res.status_code != 200:
-            rich.print(
-                f"[bold red]Failed to download file {file.path} -> {res.reason_phrase}[/bold red]"
-            )
-
-            continue
-
-        with open(local_filepath, "ab") as f:
-            f.write(res.content)
-
-        rich.print(f"[green]Written {local_filepath}[/green]")
+    for thread in threads:
+        thread.join()
 
     client.close()
     os.system("ruff format .")
+
+
+def write_module_local_file(module_name: str, file: ContentFile):
+    filepath = file.path[(len(module_name) + 1) :]  # +1 for /
+    local_filepath = paths.ROOT_PATH / f"bot/{filepath}"
+
+    res = httpx.get(file.download_url)
+
+    if res.status_code != 200:
+        return rich.print(
+            f"[bold red]Failed to download file {file.path} -> {res.reason_phrase}[/bold red]"
+        )
+
+    try:
+        with open(local_filepath, "ab") as f:
+            f.write(res.content)
+    except Exception as e:
+        return rich.print(
+            f"[bold red]Failed to write {local_filepath} -> {e}[/bold red]"
+        )
+
+    rich.print(f"[green]Written {local_filepath}[/green]")
 
 
 def walk_module(repo: Repository, module_content_file: ContentFile):
