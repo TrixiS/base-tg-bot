@@ -48,7 +48,7 @@ from . import router
 
 @app.command()
 def update():
-    os.system("uv export --no-hashes > requirements.txt")
+    os.system("uv export --no-dev  --no-hashes > requirements.txt")
     update_env_file(config.PROD_ENV_FILEPATH)
     rich.print(
         "[green]Updated [bold].env[/bold] and [bold]requrements.txt[/bold][/green]"
