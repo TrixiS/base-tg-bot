@@ -125,8 +125,8 @@ def mod_command_handler(module_name: str):
 
 
 def write_module_local_file(module_name: str, file: ContentFile):
-    filepath = file.path[(len(module_name) + 1) :]  # +1 for /
-    local_filepath = paths.ROOT_PATH / f"bot/{filepath}"
+    filepath = file.path[len(module_name) :]
+    local_filepath = paths.ROOT_PATH / f"bot{filepath}"
 
     res = httpx.get(file.download_url)
 
