@@ -125,15 +125,15 @@ def mod_command_handler(module_name: str):
 
 
 def write_module_local_file(module_name: str, file: ContentFile):
-    filepath = file.path[len(module_name) :]
-    local_filepath = paths.ROOT_PATH / f"bot{filepath}"
-
     res = httpx.get(file.download_url)
 
     if res.status_code != 200:
         return rich.print(
             f"[bold red]Failed to download file {file.path} -> {res.reason_phrase}[/bold red]"
         )
+
+    filepath = file.path[len(module_name) :]
+    local_filepath = paths.ROOT_PATH / f"bot{filepath}"
 
     try:
         with open(local_filepath, "ab") as f:
