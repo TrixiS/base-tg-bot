@@ -7,6 +7,7 @@ from .paths import ROUTERS_PATH
 _LOGGER = logging.getLogger("loader")
 
 ROUTER_PRIORITIES = (
+    "back",
     "admin",
     "user",
 )
