@@ -1,7 +1,11 @@
 import os
 from pathlib import Path
 
+import httpx
 import typer
+from github import ContentFile, Github
+from github.ContentFile import ContentFile
+from github.Repository import Repository
 
 from bot import config
 from bot.utils import paths
@@ -86,6 +90,59 @@ def handler(router: str, name: str, jump: bool = False):
 
     if jump:
         jump_to_file(handler_filepath)
+
+
+@app.command("mod")
+def mod_command_handler(module_name: str):
+    client = Github()
+
+    repo = client.get_repo("TrixiS/base-tg-bot-modules")
+    module_content_file = get_module_content_file(repo, module_name)
+
+    if module_content_file is None:
+        typer.echo(f"Module {module_name} does not exists")
+        return client.close()
+
+    typer.echo(module_content_file)
+
+    for file in walk_module(repo, module_content_file):
+        filepath = file.path[(len(module_name) + 1) :]  # +1 for /
+        local_filepath = paths.ROOT_PATH / f"bot/{filepath}"
+
+        res = httpx.get(file.download_url)
+
+        if res.status_code != 200:
+            typer.echo(f"Failed to download file {file.path} -> {res.reason_phrase}")
+            continue
+
+        with open(local_filepath, "ab") as f:
+            f.write(res.content)
+
+        typer.echo(f"Written {local_filepath}")
+
+    client.close()
+    os.system("ruff format .")
+
+
+def walk_module(repo: Repository, module_content_file: ContentFile):
+    module_files: list[ContentFile] = repo.get_contents(module_content_file.path)  # type: ignore
+
+    for file in module_files:
+        if file.type == "file":
+            yield file
+
+        if file.type == "dir":
+            yield from walk_module(repo, file)
+
+
+def get_module_content_file(repo: Repository, module_name: str):
+    root_contents: list[ContentFile] = repo.get_contents("/")  # type: ignore
+
+    for dir in root_contents:
+        if dir.path == module_name:
+            return dir
+
+    return None
 
 
 def jump_to_file(path: Path):
