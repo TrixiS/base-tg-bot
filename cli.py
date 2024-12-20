@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import httpx
+import rich
 import typer
 from github import ContentFile, Github
 from github.ContentFile import ContentFile
@@ -48,7 +49,9 @@ from . import router
 def update():
     os.system("uv export --no-hashes > requirements.txt")
     update_env_file(config.PROD_ENV_FILEPATH)
-    update_env_file(config.DEV_ENV_FILEPATH)
+    rich.print(
+        "[green]Updated [bold].env[/bold] and [bold]requrements.txt[/bold][/green]"
+    )
 
 
 @app.command("router")
@@ -56,7 +59,7 @@ def router(name: str, file: bool = False, jump: bool = False):
     if file:
         router_filepath = paths.ROUTERS_PATH / f"{name}.py"
         router_filepath.write_text(FILE_ROUTER_CODE, encoding=config.ENCODING)
-        typer.echo(f"Created router in {router_filepath}")
+        rich.print(f"[green]Created router in {router_filepath}[/green]")
 
         if jump:
             jump_to_file(router_filepath)
@@ -67,7 +70,7 @@ def router(name: str, file: bool = False, jump: bool = False):
     init_filepath = router_dirpath / "__init__.py"
     router_dirpath.mkdir(exist_ok=True)
     init_filepath.write_text(DIR_ROUTER_CODE, encoding=config.ENCODING)
-    typer.echo(f"Created router in {init_filepath}")
+    rich.print(f"[green]Created router in {init_filepath}[/green]")
 
     if jump:
         jump_to_file(init_filepath)
@@ -78,15 +81,15 @@ def handler(router: str, name: str, jump: bool = False):
     router_dirpath = paths.ROUTERS_PATH / router
 
     if not router_dirpath.exists():
-        return typer.echo(f"Router {router} does not exist")
+        return rich.print(f"[bold red]Router {router} does not exist[/bold red]")
 
     handler_filepath = router_dirpath / f"{name}.py"
 
     if handler_filepath.exists():
-        typer.echo(f"Handler {handler_filepath} is already created")
+        rich.print(f"[magenta]Handler {handler_filepath} is already created[/magenta]")
     else:
         handler_filepath.write_text(HANDLER_CODE, encoding=config.ENCODING)
-        typer.echo(f"Handler {handler_filepath} has been created")
+        rich.print(f"[green]Handler {handler_filepath} has been created[/green]")
 
     if jump:
         jump_to_file(handler_filepath)
@@ -100,10 +103,8 @@ def mod_command_handler(module_name: str):
     module_content_file = get_module_content_file(repo, module_name)
 
     if module_content_file is None:
-        typer.echo(f"Module {module_name} does not exists")
+        rich.print(f"[bold red]Module {module_name} not found[/bold red]")
         return client.close()
-
-    typer.echo(module_content_file)
 
     for file in walk_module(repo, module_content_file):
         filepath = file.path[(len(module_name) + 1) :]  # +1 for /
@@ -112,13 +113,16 @@ def mod_command_handler(module_name: str):
         res = httpx.get(file.download_url)
 
         if res.status_code != 200:
-            typer.echo(f"Failed to download file {file.path} -> {res.reason_phrase}")
+            rich.print(
+                f"[bold red]Failed to download file {file.path} -> {res.reason_phrase}[/bold red]"
+            )
+
             continue
 
         with open(local_filepath, "ab") as f:
             f.write(res.content)
 
-        typer.echo(f"Written {local_filepath}")
+        rich.print(f"[green]Written {local_filepath}[/green]")
 
     client.close()
     os.system("ruff format .")
