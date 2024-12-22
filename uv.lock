@@ -48,6 +48,15 @@ wheels = [
 ]
 
 [[package]]
+name = "aiogram3-form"
+version = "2.0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/d4/9c4fe39e00257cdad146b4cb59db22606763ced7e8e2b7b88467c4b5c18a/aiogram3_form-2.0.4.tar.gz", hash = "sha256:056086a76063c37f7264463fd7a185c447c74de96a91971a9801dfe8f37027ed", size = 6321 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/52/5d/c8450c2672a017cfdefb190ba317e8b3d73ec529754fc59fb3a35f70f497/aiogram3_form-2.0.4-py3-none-any.whl", hash = "sha256:3508ac32950af0b2e4a54fe410a8939e6d65512f5dc891b8a40d207c315d2e7c", size = 7818 },
+]
+
+[[package]]
 name = "aiohappyeyeballs"
 version = "2.4.4"
 source = { registry = "https://pypi.org/simple" }
@@ -220,6 +229,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "aerich" },
     { name = "aiogram" },
+    { name = "aiogram3-form" },
     { name = "pydantic-settings" },
     { name = "tortoise-orm" },
     { name = "uvloop", marker = "sys_platform == 'darwin' or sys_platform == 'linux'" },
@@ -236,6 +246,7 @@ dev = [
 requires-dist = [
     { name = "aerich", specifier = "==0.8.0" },
     { name = "aiogram", specifier = "==3.16.0" },
+    { name = "aiogram3-form", specifier = "==2.0.4" },
     { name = "pydantic-settings", specifier = "==2.7.0" },
     { name = "tortoise-orm", specifier = "==0.22.2" },
     { name = "uvloop", marker = "sys_platform == 'darwin' or sys_platform == 'linux'", specifier = "==0.21.0" },

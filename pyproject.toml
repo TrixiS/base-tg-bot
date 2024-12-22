@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "aerich==0.8.0",
+    "aiogram3-form==2.0.4",
     "aiogram==3.16.0",
     "pydantic-settings==2.7.0",
     "tortoise-orm==0.22.2",
