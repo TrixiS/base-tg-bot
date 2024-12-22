@@ -1,10 +1,9 @@
 import logging
-from typing import Any, Awaitable, Callable
 
-from aiogram import Dispatcher, types
+from aiogram import Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from . import database, filters, routers, state
+from . import database, routers, state
 from .client import bot
 from .utils import loader, startup
 from .utils.paths import ROOT_PATH
@@ -29,27 +28,10 @@ def setup_services(service_manager: ServiceManager):
     )
 
 
-def admin_middleware(
-    handler: Callable[[types.TelegramObject, dict[str, Any]], Awaitable[Any]],
-    update: types.TelegramObject,
-    data: dict[str, Any],
-) -> Any:
-    from_user: types.User | None = getattr(update, "from_user", None)
-
-    if from_user is None:
-        raise TypeError(f"{update.__class__.__name__} has no 'from_user' attribute")
-
-    data["is_admin"] = filters.is_admin(from_user.id)
-    return handler(update, data)
-
-
 async def main():
     setup_logging()
 
     dispatcher = Dispatcher(storage=MemoryStorage())
-
-    dispatcher.message.outer_middleware.register(admin_middleware)
-    dispatcher.callback_query.outer_middleware.register(admin_middleware)
 
     dispatcher.message.middleware.register(state.state_data_middleware)
     dispatcher.callback_query.middleware.register(state.state_data_middleware)

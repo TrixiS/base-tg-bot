@@ -20,7 +20,6 @@ class Config(BaseSettings):
     )
 
     bot_token: str = "API токен бота из https://t.me/BotFather"  # type: ignore
-    admin_user_id: int = 0
     database_uri: str = "sqlite://database.sqlite3"
 
 
