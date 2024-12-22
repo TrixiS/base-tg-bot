@@ -136,6 +136,8 @@ def write_module_local_file(module_name: str, file: ContentFile):
     local_filepath = paths.ROOT_PATH / f"bot{filepath}"
 
     try:
+        local_filepath.parent.mkdir(parents=True, exist_ok=True)
+
         with open(local_filepath, "ab") as f:
             f.write(res.content)
     except Exception as e:

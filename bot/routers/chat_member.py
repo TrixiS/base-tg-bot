@@ -1,4 +1,4 @@
-﻿from aiogram import F, Router, enums, types
+from aiogram import F, Router, enums, types
 from aiogram.filters import IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
 from aiogram.filters.magic_data import MagicData
 

@@ -6,7 +6,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from . import database, filters, routers, state
 from .client import bot
-from .schedule import ScheduleService, jobs
 from .utils import loader, startup
 from .utils.paths import ROOT_PATH
 from .utils.services import ServiceManager, ServiceMiddleware
@@ -25,11 +24,8 @@ def setup_logging():
 
 
 def setup_services(service_manager: ServiceManager):
-    schedule_service = ScheduleService()
-
     service_manager.register(
         database.DatabaseService(),
-        schedule_service,
     )
 
 
