@@ -97,28 +97,31 @@ def handler(router: str, name: str, jump: bool = False):
 
 
 @app.command("mod")
-def mod_command_handler(module_name: str):
+def mod_command_handler(module_names: list[str]):
     client = Github()
 
     repo = client.get_repo("TrixiS/base-tg-bot-modules")
-    module_content_file = get_module_content_file(repo, module_name)
+    module_content_files_map = get_module_content_files_map(repo)
 
-    if module_content_file is None:
-        rich.print(f"[bold red]Module {module_name} not found[/bold red]")
-        return client.close()
+    for module_name in module_names:
+        try:
+            module_content_file = module_content_files_map[module_name]
+        except KeyError:
+            rich.print(f"[bold red]Module {module_name} not found[/bold red]")
+            continue
 
-    threads: list[threading.Thread] = []
+        threads: list[threading.Thread] = []
 
-    for file in walk_module(repo, module_content_file):
-        thread = threading.Thread(
-            target=write_module_local_file, args=(module_name, file)
-        )
+        for file in walk_module(repo, module_content_file):
+            thread = threading.Thread(
+                target=write_module_local_file, args=(module_name, file)
+            )
 
-        thread.start()
-        threads.append(thread)
+            thread.start()
+            threads.append(thread)
 
-    for thread in threads:
-        thread.join()
+        for thread in threads:
+            thread.join()
 
     client.close()
     os.system("ruff format .")
@@ -159,14 +162,9 @@ def walk_module(repo: Repository, module_content_file: ContentFile):
             yield from walk_module(repo, file)
 
 
-def get_module_content_file(repo: Repository, module_name: str):
+def get_module_content_files_map(repo: Repository):
     root_contents: list[ContentFile] = repo.get_contents("/")  # type: ignore
-
-    for dir in root_contents:
-        if dir.path == module_name:
-            return dir
-
-    return None
+    return {f.path: f for f in root_contents if f.type == "dir"}
 
 
 def jump_to_file(path: Path):
