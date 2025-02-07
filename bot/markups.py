@@ -2,4 +2,4 @@ from aiogram import types
 from aiogram.types import InlineKeyboardButton, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from .phrases import phrases
+from . import phrases

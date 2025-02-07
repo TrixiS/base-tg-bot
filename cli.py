@@ -17,10 +17,9 @@ app = typer.Typer()
 FILE_ROUTER_CODE = """from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 
-from .. import markups
+from .. import markups, phrases
 from ..client import bot
 from ..database.models import BotUser
-from ..phrases import phrases
 from . import root_router
 
 router = Router()
@@ -38,10 +37,9 @@ root_router.include_router(router)
 HANDLER_CODE = """from aiogram import F, types
 from aiogram.fsm.context import FSMContext
 
-from ... import markups
+from ... import markups, phrases
 from ...client import bot
 from ...database.models import BotUser
-from ...phrases import phrases
 from . import router
 """
 
