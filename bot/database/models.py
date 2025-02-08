@@ -34,12 +34,3 @@ class BotUser(Model):
             return f"@{self.username}"
 
         return f'<a href="{self.tg_url}">{self.full_name}</a>'
-
-
-class BotChat(Model):
-    id = fields.BigIntField(
-        pk=True, unique=True, generated=False
-    )  # telegram chat id signed
-    title = fields.TextField()
-    username = fields.TextField(null=True)
-    type = fields.TextField()
