@@ -47,7 +47,6 @@ async def main():
     setup_services(service_middleware.manager)
     await service_middleware.manager.setup_all()
 
-    dispatcher.startup.register(bot.get_me)  # so .me would be cached on startup
     dispatcher.shutdown.register(service_middleware.manager.dispose_all)
 
     loader.import_routers()
