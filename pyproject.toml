@@ -17,6 +17,6 @@ dependencies = [
 dev = []
 
 [tool.aerich]
-tortoise_orm = "database.TORTOISE_ORM"
+tortoise_orm = "database.TORTOISE_ORM_CONFIG"
 location = "./migrations"
 src_folder = "./."
