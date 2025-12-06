@@ -9,12 +9,12 @@ from .utils import loader, startup
 from .utils.paths import ROOT_PATH
 from .utils.services import ServiceManager, ServiceMiddleware
 
-LOGS_FILEPATH = str((ROOT_PATH / "logs.log").resolve())
-
 
 def setup_logging():
+    logs_filepath = str((ROOT_PATH / "logs.log").resolve())
+
     logging.basicConfig(
-        filename=LOGS_FILEPATH,
+        filename=logs_filepath,
         level=logging.ERROR,
         format=r"%(asctime)s %(levelname)s %(name)s %(message)s",
     )
