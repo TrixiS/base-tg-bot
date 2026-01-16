@@ -6,15 +6,11 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from . import database, routers, state
 from .client import bot
 from .utils import loader, startup
-from .utils.paths import ROOT_PATH
 from .utils.services import ServiceManager, ServiceMiddleware
 
 
 def setup_logging():
-    logs_filepath = str((ROOT_PATH / "logs.log").resolve())
-
     logging.basicConfig(
-        filename=logs_filepath,
         level=logging.ERROR,
         format=r"%(asctime)s %(levelname)s %(name)s %(message)s",
     )
