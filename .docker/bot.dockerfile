@@ -5,6 +5,6 @@ FROM python:3.10.11-alpine3.18
 WORKDIR /app
 COPY . .
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 CMD python3 -m bot
